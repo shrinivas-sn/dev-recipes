@@ -1,0 +1,21 @@
+name: Deadline notification check
+
+on:
+  schedule:
+    # Adjust for your timezone. This example: ~08:30 IST = 03:00 UTC daily.
+    - cron: '0 3 * * *'
+  workflow_dispatch: {} # lets you trigger it manually from the Actions tab
+
+jobs:
+  check-deadlines:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call check-deadlines endpoint
+        run: |
+          curl -sf -X GET "https://${{ secrets.VERCEL_APP_DOMAIN }}/api/check-deadlines" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -H "x-vercel-protection-bypass: ${{ secrets.VERCEL_BYPASS_SECRET }}" \
+            -H "x-vercel-set-bypass-cookie: true"
+          # Only needed if Vercel Deployment Protection is enabled on the
+          # production domain — otherwise the two x-vercel-* headers are
+          # harmless no-ops. See README setup step 5.
