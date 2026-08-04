@@ -1,0 +1,11 @@
+// import.meta.env is populated when this runs through Vite (dev/build).
+// scripts/prerender.js imports this file under plain Node, where that's
+// undefined but process.env still carries VITE_-prefixed vars set by the
+// deploy platform (e.g. Vercel) — check both so the value is consistent
+// between the bundled app and the postbuild prerender/sitemap generation.
+const viteEnv = (typeof import.meta !== 'undefined' && import.meta.env) || {};
+const nodeEnv = (typeof process !== 'undefined' && process.env) || {};
+
+export const API_BASE_URL = viteEnv.VITE_API_URL || nodeEnv.VITE_API_URL || 'http://localhost:3000';
+
+export const SITE_URL = viteEnv.VITE_SITE_URL || nodeEnv.VITE_SITE_URL || 'https://your-app.vercel.app';

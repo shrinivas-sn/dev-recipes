@@ -1,0 +1,12 @@
+Rename this file to exactly the filename Google Search Console gives you
+(e.g. googleXXXXXXXXXXXXXXXX.html) and put it in your Vite `public/` folder
+so it's served as a static file at the site root — that's what Vercel/Netlify/etc.
+copy verbatim into the deploy output.
+
+The file's CONTENTS must be exactly the one line GSC shows you, e.g.:
+
+google-site-verification: googleXXXXXXXXXXXXXXXX.html
+
+Verify it's live before clicking "Verify" in Search Console:
+https://your-domain.com/googleXXXXXXXXXXXXXXXX.html
+should return that exact line as plain text, nothing else.
