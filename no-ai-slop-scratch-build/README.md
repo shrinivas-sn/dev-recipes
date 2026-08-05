@@ -21,6 +21,10 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 - In the prompt, give **specific creative context**, not a vague ask: purpose of the
   app, target audience, mood/vibe, dark or light mode, any existing brand colors/fonts.
   Vague prompts → generic Tailwind-gray output even with the design skill active.
+- Classify each planned data entity (user-owned/mutable, system-generated/immutable, or
+  ambiguous) per `~/.claude/skills/no-ai-slop/references/checklist.md`'s "Entity mutability
+  classification" — decide which entities get edit/delete before building them, and ask
+  about ambiguous ones now rather than discovering the gap at verification
 
 ## 3. Build
 
@@ -33,9 +37,18 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 - Run the app with the `run` skill
 - Open it in-browser via `claude-in-chrome`, screenshot it, actually look
 - The design skill improves Claude's *choices*, it does not verify *rendered pixels*
+- Score each page against `~/.claude/skills/no-ai-slop/references/checklist.md`'s 8
+  categories (visual design, copy, code structure, UX/layout, information architecture &
+  component system, entity actions & lifecycle, interaction completeness & feedback,
+  accessibility) before calling it done — one page at a time, not the whole app in one pass
 - If it still looks generic: re-prompt with sharper direction (reference a specific
   site's vibe, name concrete mood words) rather than accepting the first pass
 - Test golden path + edge cases live in the browser, not just via unit tests
+- **Stop here and report.** Present the full scorecard — every page scored, every Fail/Warn
+  with a one-line reason, plus any entity classified **ambiguous** in step 2 that's still
+  unresolved, listed as an explicit question — as one consolidated message. Do not start
+  step 5 until the user has seen it and says go. This is mandatory even in auto-accept
+  permission mode.
 
 ## 5. Quality pass (in this order)
 

@@ -11,7 +11,27 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 - Send the `explorer` subagent to inventory slop hotspots: generic default classes
   (`bg-gray-100`, `text-blue-500`), unstyled `container`/`wrapper` divs, over-commented
   files, dead code, duplicate logic
+- Classify each data entity type found in the code (user-owned/mutable,
+  system-generated/immutable, or ambiguous) per
+  `~/.claude/skills/no-ai-slop/references/checklist.md`'s "Entity mutability classification" —
+  needed before Category 6 can be scored
+- Score each component/page against the checklist's 8 categories (visual design, copy, code
+  structure, UX/layout, information architecture & component system, entity actions &
+  lifecycle, interaction completeness & feedback, accessibility) — one at a time — so the
+  audit output is a categorized per-page scorecard, not free-form notes
+- **Categories 1 (Visual Design) and 4 (UX/Layout) cannot be scored from source code alone.**
+  Render the page and screenshot it via `claude-in-chrome` *before* scoring these two —
+  Tailwind class names read as reasonable in isolation but hide templated patterns (eyebrow
+  labels, badge rows, stagger-fade motion) that only show up once rendered. This applies at
+  audit time, not just during the Step 2 reshape's before/after comparison. If no browser tool
+  is available this session, score 1 and 4 as tentative from source and say so explicitly in
+  the report — don't present them with the same confidence as a rendered check.
 - Run `code-reviewer` subagent across the repo for a bloat + bug pass, not just bugs
+- **Stop here and report.** Present the full scorecard — every component/page scored, every
+  Fail/Warn with a one-line reason, plus any entity classified **ambiguous** listed as an
+  explicit question rather than scored — as one consolidated message. Do not start step 2
+  until the user has seen it, answered any open questions, and says go. This is mandatory
+  even in auto-accept permission mode.
 
 ## 2. UI slop — reshape, don't regenerate from scratch
 
@@ -38,12 +58,13 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 
 ## 5. Order for an existing app
 
-1. `explorer` → audit/inventory slop
-2. `frontend-design` → reshape UI, one component at a time, screenshot-verify each
-3. `simplify` → clean up code structure
-4. `code-reviewer` + `security-review` → catch regressions
-5. `/test` → confirm nothing broke
-6. `/recap` → PR description for the cleanup
+1. `explorer` → audit/inventory slop, score against the checklist
+2. **Report the full scorecard, wait for go-ahead** — do not proceed until approved
+3. `frontend-design` → reshape UI, one component at a time, screenshot-verify each
+4. `simplify` → clean up code structure
+5. `code-reviewer` + `security-review` → catch regressions
+6. `/test` → confirm nothing broke
+7. `/recap` → PR description for the cleanup
 
 ## Gotchas
 

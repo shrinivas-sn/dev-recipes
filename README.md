@@ -19,3 +19,12 @@ marked with `<ANGLE_BRACKETS>`).
   Auto-triggered together by the global `no-ai-slop` skill
   (`~/.claude/skills/no-ai-slop/SKILL.md`), which detects scratch vs existing and
   picks the right one automatically.
+- [`production-grade-bug-review/`](./production-grade-bug-review/) — the
+  `prod-bug-auditor`/`prod-site-auditor` subagents plus the shared `production-readiness`
+  skill: an 8-dimension readiness scorecard and precision-focused bug audit, with a
+  changelog-driven mechanism for the methodology itself to improve over time.
+- [`headless-screenshot-fallback/`](./headless-screenshot-fallback/) — verify a local dev
+  server visually when `claude-in-chrome` isn't connected: `puppeteer-core` driving the
+  already-installed system Chrome (no download), with the two gotchas that waste time first
+  (headless `--screenshot` never scrolls; `min-h-screen` content just grows with
+  `--window-size` instead of revealing more of the page).
