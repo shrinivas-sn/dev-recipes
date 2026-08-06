@@ -185,6 +185,66 @@ stay in sync.
     code. Don't expect top-of-results from this alone; do expect to go from
     "invisible to Google" to "correctly indexed and snippet-accurate."
 
+## Situational extras (check if these apply to your project — not universal steps)
+
+These came out of one real project's SEO push after the core setup above was
+already in place and working. None of them are required for every project —
+check each against your own situation before acting on it; every project's
+actual problems differ.
+
+### Brand-attribution check (only relevant on shared subdomains)
+If deployed on a platform's shared subdomain (`*.vercel.app`, `*.netlify.app`,
+`*.github.io`, etc.), check Google search results for your own site name —
+if it shows the *platform's* name instead of yours, that's usually because
+there's no `og:site_name` meta tag or `Organization` JSON-LD entity for
+Google to attribute the site to instead. If that's actually happening to
+you: add `<meta property="og:site_name" content="Your Product Name" />` in
+`Seo.jsx`, and an `Organization` node (`name`, `url`, `logo`, optionally
+`sameAs` linking GitHub/socials) to your JSON-LD `@graph` alongside
+`WebSite`/`SoftwareApplication`. Not guaranteed to flip immediately — Google
+re-crawls on its own schedule.
+
+### `llms.txt` (check if AI-agent discoverability matters for you)
+A lightweight sibling to `robots.txt`, aimed at AI agents/LLMs rather than
+search crawlers — lists key pages with short descriptions (see
+[llmstxt.org](https://llmstxt.org/)). Optional template:
+`templates/public/llms.txt.template`. Add it if being found/used by AI
+coding assistants matters for your project; skip it otherwise.
+
+### Content + backlinks (every project's keyword landscape differs)
+Technical SEO above makes you *eligible* to rank; it doesn't make you rank.
+If you decide to invest in content:
+- Research the *actual* search landscape for your specific niche first —
+  what people search for, what's already ranking, what pain points
+  competitors' content reveals. Don't guess or reuse another project's
+  keywords.
+- If adding a blog, keep it isolated from core app routes: a separate
+  `blogRoutes.js` manifest (same JSX-free pattern as `routes.js`) plus one
+  plain JSX file per post — avoids an MDX/markdown pipeline dependency for a
+  handful of posts.
+- Cross-posting to a platform like dev.to can add reach without a
+  duplicate-content penalty — set `canonical_url` (front matter, or the
+  platform's canonical-URL field) back to your own article.
+- Directory/backlink submissions (e.g. `public-apis/public-apis` for an API
+  project) are project-specific — find the directory actually relevant to
+  your niche.
+- Gotcha if an AI agent edits a large third-party file for this: page-fetch
+  summarizers can hallucinate table/file content on big pages. Clone the
+  actual repo and read/grep it directly before a precision edit — don't
+  trust a fetched summary for anything about to be committed.
+
+### Performance quick-wins (run your own Lighthouse/PageSpeed audit)
+Core Web Vitals affect ranking indirectly. Common, easy-to-miss issues worth
+*checking for* on your own project (don't assume they apply):
+- Oversized images at small display sizes (e.g. a several-hundred-KB
+  logo/icon rendered at 40px) — compress/resize to actual display dimensions.
+- Google Fonts (or other external CSS) as a plain blocking
+  `<link rel="stylesheet">` in `<head>` — can be made non-blocking with the
+  `media="print" onload="this.media='all'"` swap trick plus a `<noscript>`
+  fallback.
+- Skipped heading levels (e.g. `h1` straight to `h3`) — flagged by
+  Lighthouse's accessibility check; keep them sequential.
+
 ## Files in this recipe
 
 - `templates/src-components/Seo.jsx` — shared `<Helmet>` wrapper: title, description, canonical, OG, Twitter, JSON-LD
@@ -192,3 +252,4 @@ stay in sync.
 - `templates/src-config/config.js` — `SITE_URL`/`API_BASE_URL` resolution that works under both Vite and plain Node
 - `templates/scripts/prerender.js` — postbuild: headless-Chrome snapshot per route + sitemap.xml/robots.txt generation
 - `templates/public/google-site-verification.html.template` — what the GSC verification file needs to contain
+- `templates/public/llms.txt.template` — optional, see "Situational extras" above
