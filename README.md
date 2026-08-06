@@ -28,3 +28,9 @@ marked with `<ANGLE_BRACKETS>`).
   already-installed system Chrome (no download), with the two gotchas that waste time first
   (headless `--screenshot` never scrolls; `min-h-screen` content just grows with
   `--window-size` instead of revealing more of the page).
+- [`shopify-online-store-buildout/`](./shopify-online-store-buildout/) — audit → plan →
+  build → verify workflow for taking a Shopify store from default-theme/placeholder-copy
+  to production-ready, via the CLI + Admin GraphQL API + `claude-in-chrome`. Core process
+  is niche/country-agnostic; payments/shipping/legal are a swappable regional module
+  (India worked example included). Heavy gotchas appendix (`productSet` option values,
+  Privacy Policy auto-management toggle, live-theme push flags, and more).
