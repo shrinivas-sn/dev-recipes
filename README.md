@@ -34,3 +34,9 @@ marked with `<ANGLE_BRACKETS>`).
   is niche/country-agnostic; payments/shipping/legal are a swappable regional module
   (India worked example included). Heavy gotchas appendix (`productSet` option values,
   Privacy Policy auto-management toggle, live-theme push flags, and more).
+- [`gsap-react-motion-patterns/`](./gsap-react-motion-patterns/) — correctness patterns for
+  GSAP inside React (`useGSAP`/`contextSafe`, kill-vs-pause/resume on relative tweens,
+  reduced-motion branching, a GPU-only sliding-indicator template), extracted from migrating
+  a live site off Framer Motion. Includes a caution on `naughtyduk/liquid-gl`'s confirmed
+  content-hiding bug under fractional `devicePixelRatio`, and how to tell a real animation
+  bug apart from a backgrounded-tab `requestAnimationFrame` testing artifact.
