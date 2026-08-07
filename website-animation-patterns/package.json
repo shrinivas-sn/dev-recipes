@@ -1,0 +1,30 @@
+{
+  "name": "website-animation-patterns",
+  "version": "1.0.0",
+  "description": "Production-grade animation patterns recipe with automation for extracting and organizing animation references",
+  "type": "commonjs",
+  "main": "scripts/add-animation-ref.js",
+  "scripts": {
+    "add-ref": "node scripts/add-animation-ref.js",
+    "add-animation": "node scripts/add-animation-ref.js"
+  },
+  "keywords": [
+    "animation",
+    "gsap",
+    "framer-motion",
+    "react",
+    "web-animation",
+    "performance",
+    "patterns",
+    "production"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "file:///E:/dev-recipes/website-animation-patterns"
+  }
+}
