@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const RECIPE_ROOT = path.dirname(path.dirname(__dirname));
+const RECIPE_ROOT = path.dirname(__dirname); // E:\dev-recipes\website-animation-patterns
 
 // URL type detection patterns
 const PATTERNS = {
