@@ -1,19 +1,90 @@
-# GSAP + React Motion Patterns
+# Website Animation Patterns
+
+A growing collection of implementation patterns, gotchas, and library notes for building website
+animations that hold up under real conditions — not just in a quick demo. Organized by
+library/technique as entries accumulate; each one below was extracted from a real bug that cost
+a full debugging pass to root-cause the first time, so the next project (any stack, any library)
+doesn't repeat it.
+
+Add to this recipe rather than starting a new one when the next animation lesson shows up,
+whatever library it's in — CSS-only, Framer Motion, anime.js, motion.dev, native View
+Transitions, etc. Give each library/technique its own `##` section below, matching the shape of
+the GSAP section.
+
+## General principles (library-agnostic)
+
+These hold regardless of what's driving the animation.
+
+### Reduced motion is "gentler," not "skip the entrance"
+
+The bar (from Emil Kowalski's animation philosophy): under `prefers-reduced-motion: reduce`, the
+*state change* should still be legible — something still visibly appears — but positional
+travel, scale, and rotation are dropped. Don't special-case this per component; branch on it
+once and thread it through every animated property.
+
+Plain CSS `transition`s (a hover color swap, a chevron rotate) aren't covered by a JS-level
+reduced-motion check — cover them once, globally, regardless of what animates the rest of the
+page:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+(See the GSAP section below for the JS-side branching pattern this pairs with.)
+
+### GPU-only properties in practice: a "grow/slide" indicator needs `scale`, not `width`/`height`
+
+A sliding/resizing pill (nav active-link indicator, tab underline, segmented control) is
+tempting to animate via `width`/`height` directly — but those are layout properties; animating
+them forces a synchronous layout recalc every frame, the same class of problem as CSS
+`transition: all`. Animate `transform` (`scale`, `translate`) instead, from a fixed
+`transform-origin`, and only ever *set* (never animate) the real `width`/`height` once the
+transform-based motion settles. See the GSAP section for a worked example and its first-run edge
+case.
+
+### Diagnosing a backgrounded/automated browser tab vs. a real animation bug
+
+`requestAnimationFrame` — what most JS animation libraries tick on — is **fully suspended** by
+Chrome when `document.hidden === true`, not just throttled. An automated browser tool
+(Claude-in-Chrome, Puppeteer, CI) frequently doesn't hold real OS-level tab focus, so animations
+you're trying to screenshot-verify can appear frozen mid-entrance, or a `setTimeout` recursion
+can crawl at a tiny fraction of its real speed — and it looks exactly like a bug.
+
+**Diagnose before you debug the animation code:**
+
+```js
+document.hidden          // true → rAF is fully suspended, not just slow
+document.visibilityState // 'hidden'
+```
+
+If your library can jump a running animation straight to its end state (bypassing rAF
+entirely — GSAP's `timeline.progress(1)` is one example, see below), and that produces the
+correct final DOM state, the code is right and what you saw was the tab-visibility artifact —
+not a real bug. Don't "fix" working code chasing a screenshot glitch that only exists because the
+verifying tab wasn't focused.
+
+## GSAP + React
 
 Correctness patterns for GSAP inside React (via `@gsap/react`'s `useGSAP`), extracted from
 migrating a live site off Framer Motion. None of these show up in a quick demo — they surface
 under specific, easy-to-miss conditions (StrictMode's double-effect, a hover interrupting an
-idle animation, a non-integer `devicePixelRatio`) and each one cost a full debugging pass to
-root-cause the first time.
+idle animation, a non-integer `devicePixelRatio`).
 
-## The problem
+### The `useGSAP` scope problem
 
 `useGSAP(() => { ... }, { scope })` auto-tracks every GSAP animation created **synchronously
 inside that callback** and reverts them on unmount/StrictMode-remount. Anything created
 **later** — inside an event handler, a `ScrollTrigger` callback, a `setTimeout`, an `onComplete`
-— is invisible to that tracking. This one fact is the root cause of most of the bugs below.
+— is invisible to that tracking. This one fact is the root cause of most of the patterns below.
 
-## Pattern 1 — `contextSafe` for anything created outside the synchronous callback
+### Pattern — `contextSafe` for anything created outside the synchronous callback
 
 ```js
 useGSAP((context, contextSafe) => {
@@ -39,7 +110,7 @@ HMR reload or a StrictMode double-invoke.
 `contextSafe` only tracks GSAP animations, not DOM listeners. Both leaks look identical
 (nothing visibly wrong until StrictMode/unmount) and both need fixing together.
 
-## Pattern 2 — kill and recreate, never `pause()`/`resume()`, a relative-value tween
+### Pattern — kill and recreate, never `pause()`/`resume()`, a relative-value tween
 
 ```js
 // A continuous idle animation using a relative value:
@@ -69,11 +140,9 @@ onComplete: () => {
 }
 ```
 
-## Pattern 3 — reduced motion is "gentler," not "skip the entrance"
+### Pattern — reduced motion, GSAP-side
 
-The bar (from Emil Kowalski's animation philosophy, applied consistently across this session):
-under `prefers-reduced-motion: reduce`, the *state change* should still be legible — something
-still visibly appears — but positional travel, scale, and rotation are dropped.
+The general principle is above; here's the GSAP shape of it:
 
 ```js
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -88,28 +157,13 @@ gsap.fromTo(
 ```
 
 The element still lands at its correct final transform under reduced motion (via the "to"
-object, applied instantly) — it just never *travels* there. Don't special-case this per
-component; branch on `reduceMotion` at the top of every `useGSAP` callback and thread it
-through every `fromTo`/`to` call in that scope.
+object, applied instantly) — it just never *travels* there. Branch on `reduceMotion` at the top
+of every `useGSAP` callback and thread it through every `fromTo`/`to` call in that scope, rather
+than special-casing per component.
 
-Site-wide CSS-only transitions (a hover color swap, a chevron rotate) aren't covered by this —
-`prefers-reduced-motion` on inline-JS GSAP tweens is a separate concern from plain CSS
-`transition`. Cover the CSS side too, once, globally:
+### Pattern — continuous/idle motion needs a delay after any settle animation
 
-```css
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-```
-
-## Pattern 4 — continuous/idle motion needs a delay after any settle animation
-
-If an idle animation (Pattern 2's `y: '+=8'` loop) starts the *instant* an entrance or
+If an idle animation (the kill/recreate pattern above) starts the *instant* an entrance or
 interruption-recovery tween completes, it reads as "it moved right after it landed" rather than
 "it's idling" — because from the user's perspective, that's exactly what happened.
 
@@ -127,12 +181,10 @@ onComplete: () => {
 delay both on initial mount *and* on every re-settle after an interruption (hover-out, etc.) —
 it's the same perceptual problem both times.
 
-## Gotcha — GPU-only in practice: a "grow/slide" indicator needs `scaleX`, not `width`
+### Gotcha — the GPU-only sliding indicator, worked example
 
-A sliding/resizing pill (nav active-link indicator, tab underline, segmented control) is
-tempting to build as `gsap.to(pill, { x, width, duration: 0.3 })` — but `width` is a layout
-property; animating it forces a synchronous layout recalc every frame, same class of problem as
-CSS `transition: all`.
+The general principle is above (`scale`, not `width`/`height`); the GSAP shape, plus its edge
+case:
 
 ```js
 // Wrong — width is layout, not transform
@@ -155,33 +207,21 @@ an explicit boolean flag, not a `width < 1` threshold — a hairline border can 
 effectively-empty box report a small nonzero `getBoundingClientRect().width`, slipping past a
 numeric threshold and producing a wildly wrong (and visibly distorted) scale ratio on first run.
 
-## Gotcha — a backgrounded/automated browser tab silently pauses your verification
+Copy-in templates: [`templates/useIdleBob.ts`](./templates/useIdleBob.ts),
+[`templates/slidingPillScaleX.ts`](./templates/slidingPillScaleX.ts).
 
-`requestAnimationFrame` (what GSAP's ticker runs on) is **fully suspended** by Chrome when
-`document.hidden === true` — not just throttled. An automated browser tool (Claude-in-Chrome,
-Puppeteer, CI) frequently doesn't hold real OS-level tab focus, so animations you're trying to
-screenshot-verify can appear frozen mid-entrance, or a `setTimeout` recursion can crawl at a
-tiny fraction of its real speed — and it looks exactly like a bug.
+### Gotcha — verifying GSAP specifically on a backgrounded tab
 
-**Diagnose before you debug the animation code:**
-
-```js
-document.hidden          // true → rAF is fully suspended, not just slow
-document.visibilityState // 'hidden'
-```
-
-**Verify the logic is actually correct** despite this, by forcing a GSAP timeline to its end
-state directly (bypasses rAF entirely):
+The general diagnosis is above; GSAP's specific escape hatch is forcing a timeline straight to
+its end state, bypassing rAF entirely:
 
 ```js
 tl.progress(1); // jumps to the end; onComplete callbacks still fire correctly
 ```
 
-If `progress(1)` produces the right final DOM state, the code is right and what you saw was the
-tab-visibility artifact — not a real bug. Don't "fix" working code chasing a screenshot glitch
-that only exists because the verifying tab wasn't focused.
+## Third-party library notes
 
-## Library caution — naughtyduk/`liquid-gl` (WebGL "liquid glass" refraction)
+### naughtyduk/`liquid-gl` (WebGL "liquid glass" refraction)
 
 Real, and genuinely higher-fidelity than a CSS `backdrop-filter` + SVG `feDisplacementMap`
 approximation — it actually rasterizes and refracts live DOM content through a WebGL shader.
@@ -204,7 +244,8 @@ lower-fidelity but never silently drops content — safer default for anything c
 
 ## See also
 
-- [`no-ai-slop-existing-app/`](../no-ai-slop-existing-app/) — the retrofit workflow this
-  migration ran inside.
+- [`no-ai-slop-existing-app/`](../no-ai-slop-existing-app/) — the retrofit workflow the GSAP
+  migration above ran inside.
 - `~/.claude/skills/animate/`, `~/.claude/skills/review-animations/` (Emil Kowalski's motion
-  philosophy) — the quality bar these patterns implement in GSAP specifically.
+  philosophy) — the quality bar every pattern in this recipe is implementing, regardless of
+  library.
