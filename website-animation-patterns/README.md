@@ -154,6 +154,46 @@ Always create a new commit with clear message explaining why.
 3. Study the templates in `libraries/[your-library]/templates/`
 4. Apply to your project
 
+---
+
+## 🔮 Future Enhancement: Decision Layer (Roadmap)
+
+**Why:** Recipe currently stores patterns, but doesn't help decide *which* animation to add.
+
+**Future structure:**
+
+```
+decision-layer/
+  ├── PATTERNS-INDEX.md          # Problem → Solution mapping
+  ├── when-to-animate.md          # Decision criteria
+  └── library-selector.md         # GSAP vs Motion vs CSS
+```
+
+**How it will work:**
+
+User asks: "How do I show an item was deleted?"
+→ Decision layer: "Deletion = state change, needs exit animation"
+→ Maps to: GSAP exit pattern OR Framer Motion AnimatePresence
+→ Links to: Actual code template
+
+**What it needs:**
+
+| Category | Examples |
+|----------|----------|
+| **Problems** | Form submission, item deletion, page transition, scroll progress |
+| **Solutions** | Entrance/exit, scroll-trigger, micro-interaction, parallax |
+| **Library picks** | Simple = CSS, Complex sequence = GSAP, React UI = Motion |
+| **Gotchas** | Reduced-motion, mobile, performance constraints |
+
+**To implement later:**
+1. Catalog 5-10 common "animation problems"
+2. Map each to 2-3 pattern solutions
+3. Add decision flowchart (GSAP vs Motion)
+4. Create before/after examples
+5. Link every solution to working templates
+
+**Placeholder for now:** See [DECISION-LAYER-ROADMAP.md](DECISION-LAYER-ROADMAP.md) (to be created)
+
 **Debugging an animation issue?**
 1. Check [Diagnostics](_core/diagnostics.md)
 2. Search for your library in [libraries/](libraries/)
