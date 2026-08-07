@@ -53,6 +53,7 @@ marked with `<ANGLE_BRACKETS>`).
 | Official Docs | 0 | - |
 
 ## 📚 Recently Added
+- [paulkalkbrenner](awwwards-refs\paulkalkbrenner.md) - 2026-08-07
 - [GSAP](libraries\gsap\greensock-GSAP.md) - 2026-08-07
 - [undefined](_core\unknown-reference.md) - 2026-08-07
 
