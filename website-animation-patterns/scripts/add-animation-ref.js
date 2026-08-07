@@ -15,9 +15,10 @@ const RECIPE_ROOT = path.dirname(path.dirname(__dirname));
 // URL type detection patterns
 const PATTERNS = {
   github: /github\.com\/([^/]+)\/([^/]+)/,
-  awwwards: /awwwards\.com/,
+  awwwards: /(awwwards\.com|dribbble\.com|behance\.net)/,
   npmjs: /npmjs\.com\/package\//,
-  officialDocs: /(motion\.dev|greensock\.com|gsap-skills)/,
+  officialDocs: /(motion\.dev|greensock\.com|gsap-skills|framer\.com)/,
+  portfolioSite: /^https?:\/\/([a-z0-9-]+\.)*(dev|com|net|org|io|co).*/, // Catch-all for portfolio sites
 };
 
 class AnimationRefAutomation {
@@ -33,14 +34,18 @@ class AnimationRefAutomation {
       const match = this.url.match(PATTERNS.github);
       this.metadata.owner = match[1];
       this.metadata.repo = match[2];
+    } else if (PATTERNS.officialDocs.test(this.url)) {
+      this.type = 'official-docs';
+      this.metadata.siteName = this.extractSiteName(this.url);
     } else if (PATTERNS.awwwards.test(this.url)) {
       this.type = 'awwwards';
       this.metadata.siteName = this.extractSiteName(this.url);
     } else if (PATTERNS.npmjs.test(this.url)) {
       this.type = 'npm';
       this.metadata.packageName = this.extractPackageName(this.url);
-    } else if (PATTERNS.officialDocs.test(this.url)) {
-      this.type = 'official-docs';
+    } else if (PATTERNS.portfolioSite.test(this.url)) {
+      this.type = 'portfolio-site';
+      this.metadata.siteName = this.extractSiteName(this.url);
     } else {
       this.type = 'unknown';
     }
@@ -137,11 +142,16 @@ class AnimationRefAutomation {
       const libPath = this.ensureLibraryDirectory(libraryName);
       fileName = `${metadata.owner}-${metadata.repo}.md`;
       outputPath = path.join(libPath, fileName);
-    } else if (this.type === 'awwwards') {
+    } else if (this.type === 'awwwards' || this.type === 'portfolio-site') {
       const awwardsPath = path.join(RECIPE_ROOT, 'awwwards-refs');
       fs.mkdirSync(awwardsPath, { recursive: true });
       fileName = `${metadata.siteName}.md`;
       outputPath = path.join(awwardsPath, fileName);
+    } else if (this.type === 'official-docs') {
+      const refPath = path.join(RECIPE_ROOT, '_core', 'references');
+      fs.mkdirSync(refPath, { recursive: true });
+      fileName = `${metadata.siteName}.md`;
+      outputPath = path.join(refPath, fileName);
     } else {
       const refPath = path.join(RECIPE_ROOT, '_core');
       fs.mkdirSync(refPath, { recursive: true });
