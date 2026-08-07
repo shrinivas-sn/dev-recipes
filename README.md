@@ -42,3 +42,17 @@ marked with `<ANGLE_BRACKETS>`).
   `naughtyduk/liquid-gl`'s confirmed content-hiding bug under fractional `devicePixelRatio`,
   and how to tell a real animation bug apart from a backgrounded-tab `requestAnimationFrame`
   testing artifact. Add the next library's lessons here rather than starting a new recipe.
+
+
+## 📊 Automation Status
+
+| Type | Count | Last Updated |
+|------|-------|---------------|
+| GitHub Repos | 0 | - |
+| Awwwards Sites | 0 | - |
+| Official Docs | 0 | - |
+
+## 📚 Recently Added
+- [GSAP](libraries\gsap\greensock-GSAP.md) - 2026-08-07
+- [undefined](_core\unknown-reference.md) - 2026-08-07
+
