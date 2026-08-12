@@ -22,7 +22,9 @@ Each pattern extracted from real bugs that cost a full debugging pass the first 
 ### Library-Specific Patterns
 
 - **[GSAP + React](libraries/gsap/README.md)** — `useGSAP` scope, kill/recreate pattern, reduced-motion, sliding indicators
+- **[Lenis + GSAP + ScrollTrigger](libraries/lenis/README.md)** — Smooth scroll, ScrollTrigger integration, scrollspy guard
 - **[Framer Motion](libraries/framer-motion/README.md)** — Layout animations, exit animations, drag interactions
+- **[CSS 3D](libraries/css-3d/README.md)** — Hover-reveal flap, static 3D depth, Tailwind JIT + dynamic-value gotcha
 
 ### Reference Sites & Extraction
 
@@ -101,6 +103,7 @@ website-animation-patterns/
 |----------|--------|-------|
 | **Core Principles** | ✓ Complete | 4 articles |
 | **GSAP Patterns** | ✓ Complete | 4 patterns + 2 templates |
+| **Lenis + ScrollTrigger** | ✓ Complete | 5 patterns + reference |
 | **Framer Motion Patterns** | ✓ In Progress | 3 patterns |
 | **Awwwards References** | ⏳ Pending Review | 0 sites |
 | **GitHub Library References** | ⏳ Pending Review | 0 repos |
@@ -262,5 +265,8 @@ User asks: "How do I show an item was deleted?"
 | Official Docs | 0 | - |
 
 ## 📚 Recently Added
+- [webflow](awwwards-refs\webflow.md) - 2026-08-10
+- [motion](_core\references\motion.md) - 2026-08-10
+- [tympanus](awwwards-refs\tympanus.md) - 2026-08-10
 - [paulkalkbrenner](awwwards-refs\paulkalkbrenner.md) - 2026-08-07
 

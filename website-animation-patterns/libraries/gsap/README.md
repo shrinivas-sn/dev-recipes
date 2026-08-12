@@ -117,6 +117,10 @@ tl.progress(1); // Verifies code is correct if final DOM state is right
 
 - [`useIdleBob.ts`](./templates/useIdleBob.ts) — Reusable idle bob animation
 - [`slidingPillScaleX.ts`](./templates/slidingPillScaleX.ts) — Sliding indicator with scaleX
+  — reused as-is in `portfolio-site-new` (2026-08-13), wired to an `IntersectionObserver`-
+  based active section instead of the original scroll-position scrollspy; added a
+  hover-preview (`pointer: fine` gated) that nudges the pill to the hovered link without
+  touching the real active-section state, so click/scroll highlighting can't fight it.
 
 ## See Also
 
