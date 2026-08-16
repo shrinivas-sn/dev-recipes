@@ -94,29 +94,39 @@ _knowledge/
   **lockfile** (declared range was `^5.2.1`, which would have permitted 5.9.x; matching the
   range instead of the lockfile would have produced a false hit). Zero network calls, zero
   Context7 tokens. The brief's fix applied and verified by reproducing the failure.
+- **Backed up 2026-08-16:** Layers 1, 1b and 2 are committed and pushed to
+  `github.com/shrinivas-sn/dev-recipes`. Before that they existed only on this disk.
 - **Unproven:** Firecrawl tier 4 (never warranted yet).
 - **Not started:** refined `recipes/` beyond the no-ai-slop pair, `evals/`, `_core/` (empty dir).
 
 ## Known open items
 
 - ~~`calendar-api` has two documented, unfixed defects.~~ **Both fixed 2026-08-16**, verified
-  by reproducing each failure. Changes are **uncommitted on branch `develop`, not pushed**
-  (8 files, +52/−23). `DOCS\APP-CONTEXT\STACK-CONTEXT.md` still describes them as open —
-  that file is now stale.
+  by reproducing each failure. ~~Changes are uncommitted on branch `develop`.~~
+  **Committed 2026-08-16** as 3 commits on `develop` (`c96f8a2` backend handler,
+  `0e81047` frontend motion/focus, `2cc4694` the context doc) — **still not pushed**.
+  Re-verified before committing: `transition-all` count is 0, the reduced-motion block and
+  the `focus-visible` ring both appear in the emitted CSS after `npm run build`.
+  ~~`DOCS\APP-CONTEXT\STACK-CONTEXT.md` is stale.~~ Rewritten — both defects now recorded as
+  closed *with the reasoning kept*, so the conventions (4-arg arity, base `button` focus rule,
+  global reduced-motion floor) survive someone who does not know why they exist.
   The second defect's record was wrong by ~10×: logged as one `transition-all` at
   `index.css:58`, the full scan found **20** across 8 files, plus **0 `focus-visible` on all
   14 buttons** and **0 `prefers-reduced-motion`**. Lesson: a defect logged from a single grep
   hit understates its own scope — rerun the whole `slop-signatures.md` scan before trusting
   a logged count.
 - `calendar-api` backend is **not deployed** — Railway returns `Application not found`;
-  the README status badge is misleading.
-- ~~Nothing in `E:\dev-recipes` is committed to git yet.~~ **Wrong — corrected 2026-08-16.**
-  It is a git repo with a remote (`github.com/shrinivas-sn/dev-recipes`) and history back to
-  at least 2026-08-13. What is actually untracked is **the whole knowledge framework**:
-  `_knowledge/`, `_standard/`, `docs-structure-standard/`,
-  `website-animation-patterns/libraries/lenis/`, plus 3 modified `README.md` files.
-  `main` is also **4 commits ahead of `origin/main`** (unpushed). So Layers 1, 1b and 2 exist
-  only on this disk.
+  the README status badge is misleading. Re-probed 2026-08-16, unchanged. This is now the
+  only genuinely open item on that repo, and it means the error-handler fix has never run
+  in production.
+- ~~Nothing in `E:\dev-recipes` is committed to git yet.~~ **Wrong, and now resolved
+  2026-08-16.** It was always a git repo with a remote
+  (`github.com/shrinivas-sn/dev-recipes`); what was untracked was the whole knowledge
+  framework. Committed as 4 commits (`0bf4a67` Layers 1/1b/2, `70e169f` docs-structure +
+  root README index, `893576b` no-ai-slop routing, `29e61d0` Lenis patterns) and **pushed —
+  `main` is now in sync with `origin/main`.** Layers 1, 1b and 2 are backed up.
+  Lesson worth keeping: this item was recorded as "no git at all" when the real problem was
+  "the new work is untracked in an existing repo". Check the repo, don't trust the note.
 - `impeccable` is installed **twice** — real 3.3 MB dirs in both `~/.agents/skills` and
   `~/.claude/skills`, with differing `SKILL.md`. Needs a user decision; see `_standard/README.md`.
 - ~~The old `no-ai-slop-*` recipes still say "look at it" / "name mood words".~~ Done
