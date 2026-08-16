@@ -7,16 +7,27 @@ Read this file at the start of any build/design session. It is the whole system 
 Layers 1, 1b and 2 are **built, proven, committed and pushed**. Nothing in this repo is
 uncommitted. Two of last session's four items are now closed. Pick up from:
 
-1. **Layer 4 — evals.** 0 of 7 custom skills have any. No pattern exists to copy, so write
-   3 evals for **one** skill first as the template, then scale. **Biggest remaining gap and
-   the top priority.**
-2. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
+1. **Layer 4 — evals.** 0 of 7 custom skills have any. **Design is decided and written up
+   below — nothing is built yet, and the build was NOT approved.** Start by re-reading
+   *"Layer 4 — evals: agreed design, not yet built"* further down this file, then confirm
+   with the user before writing any code. **Biggest remaining gap and the top priority.**
+2. **The 7 custom skills have no backup.** Found 2026-08-16. They exist only in
+   `~/.claude/skills`, which is not a git repo and is not mirrored into `dev-recipes`. This
+   is the same risk that Layers 1/1b/2 were in before last session's push. Cheap to fix;
+   see *Known open items*.
+3. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
    Least defined; needs scoping before work starts.
 
-~~3. Deploy `calendar-api`.~~ **DONE 2026-08-16** — deployed and verified in production.
-~~4. Resolve the `impeccable` duplicate.~~ **DONE 2026-08-16** — investigated, not a defect.
+~~4. Deploy `calendar-api`.~~ **DONE 2026-08-16** — deployed and verified in production.
+~~5. Resolve the `impeccable` duplicate.~~ **DONE 2026-08-16** — investigated, not a defect.
 
 Both closures are detailed under *Known open items*.
+
+**A note on how to explain this work.** The eval design was first presented to the user in
+heavy jargon (rubric / deterministic assertions / LLM judge / transcript) and it did not land
+— they said plainly they understood none of it. The plain-language version below is the one
+that worked. **Lead with that.** An explanation the user cannot act on is not an explanation,
+and this system's whole value is that a human can trust and check it.
 
 Before trusting any status line below, **verify it**. Three entries in this file have now
 been flat wrong: "nothing is committed to git" (it was always a repo), "the backend is not
@@ -119,7 +130,108 @@ _knowledge/
 - **Backed up 2026-08-16:** Layers 1, 1b and 2 are committed and pushed to
   `github.com/shrinivas-sn/dev-recipes`. Before that they existed only on this disk.
 - **Unproven:** Firecrawl tier 4 (never warranted yet).
-- **Not started:** refined `recipes/` beyond the no-ai-slop pair, `evals/`, `_core/` (empty dir).
+- **Layer 4 (evals):** **designed 2026-08-16, not built.** Format, location, runner and the
+  three `context-brief` scenarios are all decided — see the Layer 4 section above. No code,
+  no `evals/` directory yet. Build not approved; confirm before starting.
+- **Not started:** refined `recipes/` beyond the no-ai-slop pair, `_core/` (empty dir).
+
+## Layer 4 — evals: agreed design, not yet built
+
+**Status: designed 2026-08-16, approved in outline, NOT built. Confirm with the user before
+writing code.** Nothing in `_knowledge/evals/` exists yet — the directory itself is unmade.
+
+### What an eval is, in plain terms
+
+**An eval is a test for a skill.** A skill is an instruction sheet; edit it and nothing
+currently tells you whether you broke it — you find out weeks later via a wrong answer.
+
+One eval is two things:
+
+1. **A task** — "here's a question, go do it."
+2. **A checklist** — "a good answer must do these things."
+
+Run the task, check it against the list, get a pass or fail. Like a driving test: the task is
+"drive this route", the checklist is "checked mirrors, signalled, stopped fully". The point is
+ticking boxes, not judging vibes.
+
+Anthropic's checklist (`anthropic-best-practices.md`, shipped with `superpowers` — locate it,
+don't pin the path) requires **at least three evals per skill**. Current state: 0 of 7.
+
+### The three decisions the user made
+
+| Question | Decision |
+|---|---|
+| What should an eval do? | **A runnable gate**, graded by a subagent — not a paper artifact. It must be able to answer "did this change make the skill better?" |
+| Where do evals live? | **`_knowledge/evals/`** in this repo — git-backed, alongside Layers 1–3. Skills stay where they are; evals reference them by name. |
+| How does it run? | **A node runner (`runner.js`) shelling `claude -p`**, with *hybrid* grading — mechanical checks where the outcome is mechanical, and a judge model only for genuine judgment calls. Follows the `verify-sources.js` precedent. |
+
+### Planned layout
+
+```
+_knowledge/evals/
+  README.md                      what an eval is, how to run one, how to add one
+  runner.js                      executes + grades, writes a report
+  scenarios/context-brief/       01-cache-version-drift.json
+                                 02-tailwind-v3-id-trap.json
+                                 03-total-retrieval-failure.json
+  fixtures/                      throwaway mini-projects (package.json + lockfile)
+  results/                       gitignored run output
+```
+
+### Scenario file format
+
+Keep Anthropic's four keys verbatim (`skills`, `query`, `files`, `expected_behavior`) so the
+files stay recognisable, and add one: **`assertions`**, the mechanically checkable subset.
+
+```json
+{
+  "skills": ["context-brief"],
+  "query": "...",
+  "files": ["fixtures/express-drift/package.json"],
+  "expected_behavior": ["pins the version from the lockfile, not the declared range"],
+  "assertions": [
+    { "covers": 0, "type": "transcript_matches", "pattern": "package-lock|lockfile" }
+  ]
+}
+```
+
+`covers` names which `expected_behavior` item an assertion grades. **Every rubric item is
+graded by exactly one of {assertion, judge}**, and the report states which did what — so
+reliance on the judge is visible rather than silent. A judge can pass a run that mechanically
+failed; that is the failure mode a gate can least afford.
+
+### Why `context-brief` is the template skill
+
+Its steps produce checkable behaviour (pin from lockfile, cache hit needs **both** TTL and
+version match, version-pin the Context7 id, non-empty Traps, label unverified memory). The
+other six are vaguer to grade, so the pattern is easiest to establish here and copy outward.
+
+### The three scenarios — all from documented failures, not invented ones
+
+The doc is explicit that evals must target real observed gaps. All three are traps already
+recorded in this file:
+
+| # | Tests | Guards against |
+|---|---|---|
+| 1 | Steps 2+3 | **Cache false-hit.** Fixture declares `^5.2.1` while the lockfile pins otherwise. Matching the declared *range* instead of the lockfile yields a false cache hit — the exact trap the proven cache-hit path had to dodge. |
+| 2 | Step 4 routing | **Tailwind v3/v4 id.** Must pick `/websites/v3_tailwindcss`, must not probe a Tailwind `llms.txt` (recorded absence), must emit no v4 syntax. Highly deterministic to check. |
+| 3 | Failure handling | **Unlabelled memory.** All tiers fail → must name what was tried and label the answer unverified memory. The likeliest silent regression and the hardest to catch by hand. |
+
+Plus one rubric item in **every** scenario: **did the skill fire at all?** A skill that stops
+auto-triggering otherwise fails every eval for the wrong reason.
+
+### Known caveats, agreed up front
+
+- **Runs cost real tokens.** Each scenario is a live `claude -p` making real Context7/web
+  calls. This is a gate to run when a skill is edited, not continuously. Plan `--scenario`
+  (run one) and `--dry-run` (validate files, spend nothing).
+- **Scope of the first build:** runner + 3 `context-brief` evals + README. That is the
+  template. Scaling to the other six is follow-on.
+- **Do not mechanically target 21 evals.** `animation-ref` is 6 lines and `production-readiness`
+  is a shared rubric other agents `Read` directly — assess whether 3 each is meaningful rather
+  than manufacturing tests to hit a number.
+- **Baseline-vs-treatment (running each scenario with the skill suppressed, to prove the skill
+  earns its context cost) was considered and deliberately deferred.** Revisit once the gate works.
 
 ## Known open items
 
@@ -167,6 +279,17 @@ _knowledge/
   `main` is now in sync with `origin/main`.** Layers 1, 1b and 2 are backed up.
   Lesson worth keeping: this item was recorded as "no git at all" when the real problem was
   "the new work is untracked in an existing repo". Check the repo, don't trust the note.
+- **The 7 custom skills are not backed up anywhere.** Found 2026-08-16 while scoping evals.
+  They live only in `~/.claude/skills/` — which is **not a git repo**, and no `SKILL.md`
+  exists anywhere under `E:\dev-recipes`. A disk failure or a bad `npx skills` run loses
+  `context-brief`, `design-source`, `no-ai-slop`, `no-ai-slop-writing`, `api-idea-scout`,
+  `production-readiness` and `animation-ref` outright.
+
+  This is the **same risk class** as "Layers 1/1b/2 existed only on this disk", closed last
+  session by pushing to GitHub. The knowledge framework got backed up; the skills that read
+  it did not. Cheap to fix (copy or symlink them into the repo and commit), but it changes
+  where skills are stored, so it is the user's call and was kept separate from the eval work.
+
 - ~~`impeccable` is installed **twice** — needs a user decision.~~ **CLOSED 2026-08-16 — not a
   defect, and no decision was needed.** It is one skill at one version (**4.0.4** in both)
   shipped as two **harness-specific builds**: the `~/.claude` copy carries Claude Code
