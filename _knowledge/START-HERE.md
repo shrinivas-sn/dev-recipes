@@ -2,6 +2,25 @@
 
 Read this file at the start of any build/design session. It is the whole system in one page.
 
+## Resume here — last session 2026-08-16
+
+Layers 1, 1b and 2 are **built, proven, committed and pushed**. Nothing in this repo is
+uncommitted. Pick up from one of these, in rough priority order:
+
+1. **Layer 4 — evals.** 0 of 7 custom skills have any. No pattern exists to copy, so write
+   3 evals for **one** skill first as the template, then scale. Biggest remaining gap.
+2. **Deploy `calendar-api`.** Backend is live on Render but running a **pre-fix build** —
+   production still answers a malformed JSON body with `400 text/html`. The fix is 3 commits
+   on `develop`, unpushed. Push + deploy closes the last defect.
+3. **Resolve the `impeccable` duplicate.** Needs a user decision; diff the two `SKILL.md`
+   files first. See `_standard/README.md`.
+4. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
+
+Before trusting any status line below, **verify it**. Two entries in this file were flat
+wrong last session: "nothing is committed to git" (it was always a repo) and "the backend is
+not deployed" (it had moved from Railway to Render). Both were written from a single stale
+observation. Check the repo, check the live host.
+
 ## The problem this solves
 
 Claude answers about libraries and design from **memory**. Memory is stale by construction
