@@ -63,9 +63,16 @@ Scored: the 7 custom-authored, against the mechanically checkable checklist item
 | Progressive disclosure where needed | **3/7** have a `references/` dir; `api-idea-scout` carries 401 lines with none |
 | No Windows-style paths | **1/7** — see delta above |
 | At least three evaluations | **0/7** — see delta above |
+| Under version control | **7/7** as of 2026-08-16 — mirrored into [`../_skills/`](../_skills/) and pushed; was **0/7** at audit time |
 
 Two real gaps in the custom 7, both recorded as deltas above. Nothing there is a defect
 requiring a fix today.
+
+The version-control row is not on Anthropic's checklist — it was added after the audit,
+when scoping evals surfaced that all 7 existed only in `~/.claude/skills` with no copy
+anywhere. Backup is a precondition for the other rows: there is no point grading a skill
+that one bad `npx skills` run can erase. Closed by `../_skills/sync-skills.js`; run
+`node sync-skills.js --check` to confirm the mirror is still current before trusting this row.
 
 ### Found while auditing, outside the custom 7
 

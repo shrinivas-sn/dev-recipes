@@ -5,23 +5,24 @@ Read this file at the start of any build/design session. It is the whole system 
 ## Resume here — last session 2026-08-16
 
 Layers 1, 1b and 2 are **built, proven, committed and pushed**. Nothing in this repo is
-uncommitted. Two of last session's four items are now closed. Pick up from:
+uncommitted. The skills are now backed up too. Pick up from:
 
 1. **Layer 4 — evals.** 0 of 7 custom skills have any. **Design is decided and written up
    below — nothing is built yet, and the build was NOT approved.** Start by re-reading
    *"Layer 4 — evals: agreed design, not yet built"* further down this file, then confirm
    with the user before writing any code. **Biggest remaining gap and the top priority.**
-2. **The 7 custom skills have no backup.** Found 2026-08-16. They exist only in
-   `~/.claude/skills`, which is not a git repo and is not mirrored into `dev-recipes`. This
-   is the same risk that Layers 1/1b/2 were in before last session's push. Cheap to fix;
-   see *Known open items*.
+2. **`~/.claude/commands/` and `~/.claude/agents/` are still unbacked** — 10 custom slash
+   commands and 5 subagent definitions, hand-written, existing only on this disk. Exactly
+   the gap the skills were in before `_skills/` closed it, and closable the same way:
+   extend `TRACKED` in `_skills/sync-skills.js`. Small; needs the user's nod on layout.
 3. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
    Least defined; needs scoping before work starts.
 
 ~~4. Deploy `calendar-api`.~~ **DONE 2026-08-16** — deployed and verified in production.
 ~~5. Resolve the `impeccable` duplicate.~~ **DONE 2026-08-16** — investigated, not a defect.
+~~6. Back up the 7 custom skills.~~ **DONE 2026-08-16** — mirrored into `_skills/` and pushed.
 
-Both closures are detailed under *Known open items*.
+All three closures are detailed under *Known open items*.
 
 **A note on how to explain this work.** The eval design was first presented to the user in
 heavy jargon (rubric / deterministic assertions / LLM judge / transcript) and it did not land
@@ -74,6 +75,7 @@ _knowledge/
   PROOF-design-layer.md    Layer 1b proof (design)
 
 ../_standard/README.md     Layer 2 — the ruler (points at Anthropic's checklist) + audit scorecard
+../_skills/                backup mirror of the 7 hand-written skills + sync-skills.js
 ```
 
 ## The loop, in practice
@@ -129,6 +131,9 @@ _knowledge/
   Context7 tokens. The brief's fix applied and verified by reproducing the failure.
 - **Backed up 2026-08-16:** Layers 1, 1b and 2 are committed and pushed to
   `github.com/shrinivas-sn/dev-recipes`. Before that they existed only on this disk.
+  **The 7 hand-written skills followed, same day** — mirrored into `_skills/` by
+  `_skills/sync-skills.js`, 13 files, byte-verified. `~/.claude/commands` and
+  `~/.claude/agents` remain unbacked.
 - **Unproven:** Firecrawl tier 4 (never warranted yet).
 - **Layer 4 (evals):** **designed 2026-08-16, not built.** Format, location, runner and the
   three `context-brief` scenarios are all decided — see the Layer 4 section above. No code,
@@ -279,16 +284,30 @@ auto-triggering otherwise fails every eval for the wrong reason.
   `main` is now in sync with `origin/main`.** Layers 1, 1b and 2 are backed up.
   Lesson worth keeping: this item was recorded as "no git at all" when the real problem was
   "the new work is untracked in an existing repo". Check the repo, don't trust the note.
-- **The 7 custom skills are not backed up anywhere.** Found 2026-08-16 while scoping evals.
-  They live only in `~/.claude/skills/` — which is **not a git repo**, and no `SKILL.md`
-  exists anywhere under `E:\dev-recipes`. A disk failure or a bad `npx skills` run loses
-  `context-brief`, `design-source`, `no-ai-slop`, `no-ai-slop-writing`, `api-idea-scout`,
-  `production-readiness` and `animation-ref` outright.
+- ~~The 7 custom skills are not backed up anywhere.~~ **CLOSED 2026-08-16.** Mirrored into
+  `_skills/` and pushed. 13 files across the 7 skills; `sync-skills.js --check` compares
+  byte-for-byte and reports "in sync". The live skills stay in `~/.claude/skills` and are
+  still what Claude Code loads — this is a **mirror, not a move**, so nothing about how
+  skills load changed.
 
-  This is the **same risk class** as "Layers 1/1b/2 existed only on this disk", closed last
-  session by pushing to GitHub. The knowledge framework got backed up; the skills that read
-  it did not. Cheap to fix (copy or symlink them into the repo and commit), but it changes
-  where skills are stored, so it is the user's call and was kept separate from the eval work.
+  Three things worth not re-deriving:
+  - **`~/.claude/skills` has 17 entries but only 8 real directories.** Nine are symlinks to
+    `~/.agents/skills` (the `npx skills@latest` pack) and `impeccable` is a vendor install
+    with its own installer. Only the **7 hand-written** ones are irreplaceable, so only
+    those are mirrored — backing up the symlink targets would have duplicated reinstallable
+    content and buried the 7 that matter.
+  - **A mirror's real failure mode is silent staleness, not loss.** Hence `--check` as a
+    separate write-nothing mode: a backup you cannot cheaply confirm is current is a backup
+    you cannot trust. Run it after editing any skill.
+  - **The script refuses to sync when a tracked skill is missing from the live directory**
+    (exit 2, verified). Without that, deleting a skill by accident and then syncing would
+    delete its backup too — the backup tool completing the loss it exists to prevent. Same
+    principle as `verify-sources.js` refusing to stamp a partial pass.
+
+  **Still open, same risk class:** `~/.claude/commands/` (10 files) and `~/.claude/agents/`
+  (5 files) are hand-written and unbacked. Found while doing this. Closable by extending
+  `TRACKED` in `sync-skills.js`; left for the user because it changes what the directory
+  claims to hold.
 
 - ~~`impeccable` is installed **twice** — needs a user decision.~~ **CLOSED 2026-08-16 — not a
   defect, and no decision was needed.** It is one skill at one version (**4.0.4** in both)
