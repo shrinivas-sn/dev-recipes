@@ -115,10 +115,14 @@ _knowledge/
   14 buttons** and **0 `prefers-reduced-motion`**. Lesson: a defect logged from a single grep
   hit understates its own scope — rerun the whole `slop-signatures.md` scan before trusting
   a logged count.
-- `calendar-api` backend is **not deployed** — Railway returns `Application not found`;
-  the README status badge is misleading. Re-probed 2026-08-16, unchanged. This is now the
-  only genuinely open item on that repo, and it means the error-handler fix has never run
-  in production.
+- ~~`calendar-api` backend is not deployed — Railway returns `Application not found`.~~
+  **Wrong. Moved to Render** (platform restrictions on Railway) — live at
+  `https://calendar-api-d7a8.onrender.com`, verified 2026-08-16 returning real data.
+  Probing the Railway URL found in the docs "confirmed" a dead deployment that had simply
+  been replaced. **Lesson: a 404 proves that URL is dead, not that the app is undeployed —
+  find the current host before concluding anything.**
+  Still open: the **deployed build predates the error-handler fix** — a malformed JSON body
+  still answers `400 text/html`. The fix sits on `develop`, unpushed. Deploy closes it.
 - ~~Nothing in `E:\dev-recipes` is committed to git yet.~~ **Wrong, and now resolved
   2026-08-16.** It was always a git repo with a remote
   (`github.com/shrinivas-sn/dev-recipes`); what was untracked was the whole knowledge
