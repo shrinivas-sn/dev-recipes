@@ -1,0 +1,100 @@
+# `_standard/` — the ruler
+
+Layer 2 of the agent knowledge framework. It answers one question: **is this skill any good?**
+
+## The ruler is not written here
+
+`RESEARCH.md:67` recorded the finding that matters: the standard was **already owned and
+simply not applied**. It ships with the `superpowers` plugin:
+
+```
+skills/writing-skills/anthropic-best-practices.md
+```
+
+The path carries a plugin version that changes on update, so locate it rather than pinning it:
+
+```bash
+find ~/.claude/plugins/cache -name anthropic-best-practices.md | sort | tail -1
+```
+
+It ends in a 22-item **Checklist for effective Skills** (core quality / code and scripts /
+testing). That checklist is the ruler. Re-deriving a local copy would be exactly the
+memory-over-retrieval failure `_knowledge/` exists to prevent — so this file holds only the
+**deltas** and the **scorecard**.
+
+## Local deltas — decisions this setup makes deliberately
+
+### Windows-style paths: accepted, not fixed
+
+The checklist says *"No Windows-style paths (all forward slashes)"*; the doc's stated reason
+is that backslash paths *"cause errors on Unix systems"*.
+
+Audited 2026-08-16: **27 backslash paths across 6 of 7 custom skills.** Accepted as-is. This
+is a single-machine Windows setup, the paths are absolute (`E:\dev-recipes\...`) and therefore
+non-portable regardless of slash direction, and rewriting 27 references buys nothing today.
+
+**Revisit if** any skill is shared, published, or run on a non-Windows machine — at that point
+the absolute paths are the blocker, not the slashes.
+
+### Evals: gap acknowledged, deferred to Layer 4
+
+The checklist requires *"At least three evaluations created"* per skill. Current state: **0 of
+7**. `no-ai-slop-writing/references/eval.md` is a post-run self-check rubric, which is useful
+but is not an evaluation — it does not let you answer *"did this change make the skill
+better?"*
+
+This is `RESEARCH.md:56` problem #6, unchanged. Building evals for 7 skills is Layer 4 work,
+not Layer 2. Recorded here so it stays measured instead of forgotten.
+
+## Scorecard — custom skills, audited 2026-08-16
+
+`~/.claude/skills/` holds **17** skills: 7 custom-authored (scored below) plus 10 from the
+emilkowalski pack, upstream's to maintain — 9 of those are symlinks into `~/.agents/skills/`;
+`impeccable` is not (see below).
+
+Scored: the 7 custom-authored, against the mechanically checkable checklist items.
+
+| Check | Result |
+|---|---|
+| SKILL.md under 500 lines | **7/7** — range 8 (`animation-ref`) to 401 (`api-idea-scout`) |
+| Description states what *and* when | **7/7** — every one carries a "Use when…" clause |
+| File references one level deep | **7/7** — all are `references/*.md` |
+| Required tooling verified available | **1/1** — `animation-ref` is the only skill invoking a script; `add-animation-ref.js` exists |
+| Progressive disclosure where needed | **3/7** have a `references/` dir; `api-idea-scout` carries 401 lines with none |
+| No Windows-style paths | **1/7** — see delta above |
+| At least three evaluations | **0/7** — see delta above |
+
+Two real gaps in the custom 7, both recorded as deltas above. Nothing there is a defect
+requiring a fix today.
+
+### Found while auditing, outside the custom 7
+
+- **`impeccable` is installed twice** — `~/.agents/skills/impeccable` and
+  `~/.claude/skills/impeccable` are both real 3.3 MB directories (not a symlink pair, unlike
+  the other 9 emilkowalski skills), and their `SKILL.md` files **differ**. 6.6 MB on disk and
+  no obvious rule for which copy loads. Related symptom: `pick-ui-library`, `prototype`, and
+  `review-animations` exist in `~/.agents/skills/` but did not appear in the session skill
+  listing on 2026-08-16. Not touched — deleting either copy is the user's call.
+- **`emil-design-eng` is 674 lines**, over the checklist's 500-line SKILL.md limit. Upstream's
+  file, upstream's call. Noted so the number isn't rediscovered.
+
+### Caveat on the scan
+
+The `win-paths` grep above matches regex fragments in JavaScript (`w:\s`, `E:\n`) as well as
+real paths. It is reliable on markdown-only skills and noisy on any skill shipping `scripts/`.
+The 27 hits in the custom 7 were confirmed by eye as 16 unique genuine `E:\...` paths.
+
+## Re-running this audit
+
+```bash
+cd ~/.claude/skills
+for s in */; do echo "$s $(wc -l < "$s/SKILL.md") lines"; done
+for s in */; do echo "$s $(grep -roE '[A-Za-z]:\\\\[A-Za-z0-9_.-]+' "$s" | wc -l) win-paths"; done
+```
+
+Re-score when a skill is added or substantially rewritten. Update the date above.
+
+## What `_standard/` is not
+
+Not a spec to write skills *from* — that is the Anthropic doc. This file is the record of
+where this setup knowingly departs from it, and what the last audit found.

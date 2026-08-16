@@ -1,0 +1,187 @@
+# _knowledge/design-sources.yaml — code-bearing design sources (Layer 1b)
+#
+# sources.yaml answers "what is this library's API?".
+# This file answers "what does a good version of this component ACTUALLY look like,
+# in real working code?"
+#
+# The rule it enforces:
+#   Design slop comes from GENERATING components. The fix is RETRIEVING a real one
+#   and adapting it. Never hand-write a hero, card grid, marquee, reveal, or cursor
+#   effect from memory when a registry ships a working implementation.
+#
+# Inclusion bar: a source must return REAL SOURCE CODE over HTTP, no key, no browser.
+# Inspiration galleries (screenshots only) are NOT here — they are tier 4 in
+# sources.yaml under `design_refs`, and they cannot stop slop because you still end
+# up generating the code yourself.
+
+version: 1
+updated: 2026-08-16
+
+# ---------------------------------------------------------------------------
+# How to pull. All of these speak the shadcn registry JSON shape:
+#   { name, dependencies: [...], files: [{ path, content }] }
+# so one fetch returns deps + full source.
+#
+#   curl -s <url> | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{
+#     const j=JSON.parse(s); console.log(j.dependencies); console.log(j.files[0].content);})"
+#
+# Or, in a shadcn-initialised project:  npx shadcn@latest add <url>
+# ---------------------------------------------------------------------------
+
+registries:
+
+  - id: shadcn
+    name: shadcn/ui
+    what: Structural primitives — button, card, dialog, tabs, form, table.
+    url_pattern: https://ui.shadcn.com/r/styles/{style}/{component}.json
+    styles: [new-york, default]
+    example: https://ui.shadcn.com/r/styles/new-york/button.json
+    ships:
+      language: tsx
+      tailwind: v4-first (v3 compatible — class names are conventional utilities)
+      needs: ["cn() helper at @/lib/utils", "class-variance-authority", "tailwind-merge"]
+    licence: MIT
+    verified: 2026-08-16
+    verified_note: 200, 2.3 KB, full source in files[].content.
+    use_when: You need the bones to be correct and accessible. Not a personality source.
+
+  - id: reactbits
+    name: React Bits
+    what: Animated text, backgrounds, cursor and scroll effects. The personality layer.
+    url_pattern: https://reactbits.dev/r/{Component}-{JS|TS}-{TW|CSS}.json
+    example: https://reactbits.dev/r/SplitText-JS-TW.json
+    ships:
+      language: BOTH jsx and tsx — pick the variant, no conversion needed
+      styling: BOTH tailwind and plain css — pick the variant
+      deps: pinned in the payload, e.g. ["gsap@^3.13.0", "@gsap/react@^2.1.2"]
+    licence: MIT
+    verified: 2026-08-16
+    verified_note: >
+      200 on SplitText-JS-TW (5.0 KB), SplitText-JS-CSS, ClickSpark-JS-TW.
+      BEST FIT for plain-JS projects — it is the only registry here that publishes a
+      JSX variant, so there is no type-stripping step to get wrong.
+    use_when: A section is structurally fine but lifeless. Reach here before writing motion.
+
+  - id: magicui
+    name: Magic UI
+    what: Marquees, tickers, animated beams/borders, number tickers, bento grids.
+    url_pattern: https://magicui.design/r/{component}.json
+    example: https://magicui.design/r/marquee.json
+    ships:
+      language: tsx
+      tailwind: v4-first — check keyframes, they expect config/CSS-var registration
+      deps: usually motion (framer-motion)
+    licence: MIT
+    verified: 2026-08-16
+    verified_note: 200, 2.6 KB.
+    use_when: Marketing/landing surfaces. Heavier personality than shadcn.
+
+  - id: aceternity
+    name: Aceternity UI
+    what: Spotlight, 3D cards, hero backgrounds, high-drama scroll effects.
+    url_pattern: https://ui.aceternity.com/registry/{component}.json
+    example: https://ui.aceternity.com/registry/spotlight.json
+    ships:
+      language: tsx
+      tailwind: often needs custom keyframes added to config (v3) or @theme (v4)
+      needs: ["cn() helper at @/lib/utils"]
+    licence: MIT
+    verified: 2026-08-16
+    verified_note: 200, 1.9 KB, verified files[0].content is complete component source.
+    use_when: One hero moment. Using several of these together is its own kind of slop.
+
+  # --- Probed and NOT usable as of 2026-08-16 -------------------------------
+  - id: motion-primitives
+    name: Motion Primitives
+    url_pattern: https://motion-primitives.com/c/{component}.json
+    status: blocked
+    verified: 2026-08-16
+    verified_note: >
+      429 (33 KB challenge page, not JSON) — edge rate-limit/bot check. Re-probe later;
+      do not burn retries mid-build. Site is browsable by hand if a pattern is needed.
+
+  - id: cult-ui
+    name: Cult UI
+    url_pattern: https://www.cult-ui.com/r/{component}.json
+    status: blocked
+    verified: 2026-08-16
+    verified_note: 429 challenge page, same as motion-primitives.
+
+  - id: tremor
+    name: Tremor (dashboard/chart components)
+    url_pattern: https://registry.tremor.so/r/{component}.json
+    status: dead
+    verified: 2026-08-16
+    verified_note: Connection failed (000). Path is wrong or the registry moved — re-find before use.
+
+# ---------------------------------------------------------------------------
+# Technique sources — full write-ups WITH source, when no registry has the pattern.
+# ---------------------------------------------------------------------------
+technique_sources:
+  - id: codrops
+    name: Codrops / Tympanus
+    url: https://tympanus.net/codrops/
+    what: Long-form technique articles with complete demo source on GitHub.
+    tier: 2
+    note: Try WebFetch before spending a Firecrawl credit — articles are largely static.
+    local: E:/dev-recipes/website-animation-patterns/awwwards-refs/tympanus.md
+
+  - id: gsap-docs
+    name: GSAP
+    llms_txt: https://gsap.com/llms.txt
+    tier: 2
+    local: E:/dev-recipes/website-animation-patterns/libraries/gsap/
+    local_note: >
+      READ LOCAL FIRST. Holds debugged useGSAP/contextSafe gotchas, kill-vs-pause on
+      relative tweens, and a GPU-only sliding-indicator template. Upstream docs do not
+      contain these — they were paid for in debugging time.
+
+  - id: motion-docs
+    name: Motion (Framer Motion)
+    llms_txt: https://motion.dev/llms.txt
+    tier: 2
+    local: E:/dev-recipes/website-animation-patterns/libraries/framer-motion/
+
+# ---------------------------------------------------------------------------
+# Adaptation contract — the step where guessing sneaks back in.
+#
+# Registry code is written for the AUTHOR's stack, not yours. Before pasting,
+# resolve every line below against the target project. Skipping this is how you get
+# code that looks retrieved but behaves generated.
+# ---------------------------------------------------------------------------
+adaptation_checklist:
+  - id: language
+    check: Project JSX or TSX?
+    action: >
+      Prefer a registry variant in the target language (React Bits publishes JSX).
+      If only TSX exists, strip types deliberately — remove annotations, interfaces and
+      generics; do NOT also "tidy" the logic while converting.
+  - id: tailwind_major
+    check: v3 or v4? (read the lockfile, not the range)
+    action: >
+      See cache/tailwind-v3-theme-overrides.md. Custom keyframes go in
+      tailwind.config.js theme.extend.keyframes for v3, @theme for v4. A v4 component
+      dropped in a v3 project renders unstyled and does not error.
+  - id: palette_remap
+    check: Has the project overridden any built-in colour scale?
+    action: >
+      Registry code assumes STOCK Tailwind colours. If the project remapped a scale,
+      shade names mean different things and pasted code will render at the wrong
+      contrast. Diff the config against the installed package's default palette.
+  - id: cn_helper
+    check: Does @/lib/utils with cn() exist? Is the @ alias configured in vite config/jsconfig?
+    action: Add cn() (clsx + tailwind-merge) or rewrite the className joins. Do not assume.
+  - id: deps
+    check: Are the payload's `dependencies` installed at compatible versions?
+    action: Install at the pinned range. Never assume a peer like gsap or motion is present.
+  - id: reduced_motion
+    check: Does the component respect prefers-reduced-motion?
+    action: >
+      Most registry components do NOT. Add the branch. This is an accessibility
+      requirement, not polish, and it is the single most common omission in pasted
+      animation code.
+  - id: dark_mode
+    check: Does the project use `dark:` variants, or is it permanently dark?
+    action: >
+      If there are zero `dark:` usages, the variant is never activated — pasting
+      dark:-prefixed classes silently does nothing.
