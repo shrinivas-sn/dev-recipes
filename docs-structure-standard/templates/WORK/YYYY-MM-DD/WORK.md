@@ -1,0 +1,13 @@
+# <YYYY-MM-DD> — <short slug/title>
+
+<!-- Add a matching row to DOCS/README.md the same session this file is created. -->
+
+## Plan
+<what was intended for this session>
+
+## Execution
+<what actually happened — call out any deviation from the plan and why>
+
+## Notes
+<anything worth surfacing later: a gotcha hit, a decision made, an external
+blocker — optional>

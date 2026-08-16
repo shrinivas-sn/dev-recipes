@@ -7,6 +7,24 @@ Each folder is self-contained: a `README.md` (architecture + setup checklist + g
 and a `templates/` directory with copy-in-ready files (secrets stripped, placeholders
 marked with `<ANGLE_BRACKETS>`).
 
+## Knowledge layer
+
+- [`_knowledge/`](./_knowledge/) — **Layer 1** of the agent knowledge framework: a registry
+  (`sources.yaml`) of where authoritative truth lives per domain, a cost ladder that routes
+  to the cheapest tier able to answer (Context7 → `llms.txt` → WebSearch → Firecrawl), and
+  `cache/` of distilled, cited, version-pinned briefs. Driven by the `/context-brief` skill
+  (`~/.claude/skills/context-brief/SKILL.md`). It exists because the recipes below are
+  *process* — they tell Claude how to work but ship no content, so the actual API and design
+  decisions still came from model memory. Proven on `E:\calendar-api`
+  (`_knowledge/PROOF-calendar-api.md`). Start at
+  [`_knowledge/START-HERE.md`](./_knowledge/START-HERE.md) — the whole system on one page.
+  **Layer 1b** (design) lives here too: `design-sources.yaml` + `slop-signatures.md`, driven
+  by `/design-source`.
+- [`_standard/`](./_standard/) — **Layer 2**, the ruler: how to tell whether a skill is any
+  good. Deliberately does *not* restate a spec — the checklist is Anthropic's
+  `anthropic-best-practices.md`, shipped with the `superpowers` plugin. This folder holds
+  only the local deltas (where this setup knowingly departs) and the audit scorecard.
+
 ## Recipes
 
 - [`free-push-notifications-pwa-fcm/`](./free-push-notifications-pwa-fcm/) — closed-browser
@@ -34,6 +52,12 @@ marked with `<ANGLE_BRACKETS>`).
   is niche/country-agnostic; payments/shipping/legal are a swappable regional module
   (India worked example included). Heavy gotchas appendix (`productSet` option values,
   Privacy Policy auto-management toggle, live-theme push flags, and more).
+- [`docs-structure-standard/`](./docs-structure-standard/) — canonical `DOCS/` folder
+  layout (`README.md` index, `STATUS.md`, dated `WORK/` folders merging plan+execution,
+  `CONTEXT/`, `RESEARCH/`, `EXTRA/`) so `/recap` can reorient in any project with a
+  handful of cheap reads instead of a folder crawl, while still surfacing old
+  load-bearing work via the index's `Touches`/`Continues` columns instead of reading
+  every file. Paired with the `/recap` and `/docs-restructure` commands.
 - [`website-animation-patterns/`](./website-animation-patterns/) — growing collection of
   website animation implementation patterns and gotchas, organized by library/technique as
   entries accumulate (currently: general library-agnostic principles, plus a full GSAP+React
