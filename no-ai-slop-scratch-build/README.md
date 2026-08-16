@@ -3,8 +3,9 @@
 For a brand-new app/website (empty repo or bare scaffold, no meaningful existing code).
 Goal: ship something that doesn't read as generic AI output — visually or in the code.
 
-Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in skills,
-`explorer` / `test-runner` / `code-reviewer` subagents in `~/.claude/agents/`.
+Assumes: `/design-source` + `/context-brief` skills (the retrieval layer — see
+`../_knowledge/START-HERE.md`), `frontend-design` plugin, `simplify`/`security-review`/`run`
+built-in skills, `explorer` / `test-runner` / `code-reviewer` subagents in `~/.claude/agents/`.
 
 ## 1. Setup (once per project)
 
@@ -28,8 +29,11 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 
 ## 3. Build
 
-- UI work: prompt naturally ("build a landing page for X") — `frontend-design`
-  auto-triggers, picks a deliberate aesthetic direction instead of templated defaults
+- UI work: **`/design-source` first** — retrieve real component source from a registry
+  (shadcn / React Bits / Magic UI / Aceternity) and adapt it. Generating a hero or card
+  grid from the prompt samples the median landing page of the training data; that is what
+  reads as AI-made. `frontend-design` still sets aesthetic direction — it decides *how it
+  should look*, `/design-source` supplies *working code that isn't average*.
 - Backend/logic: rely on the CLAUDE.md rules from step 1 to keep it lean
 
 ## 4. Verify visually — the step most people skip
@@ -41,8 +45,9 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
   categories (visual design, copy, code structure, UX/layout, information architecture &
   component system, entity actions & lifecycle, interaction completeness & feedback,
   accessibility) before calling it done — one page at a time, not the whole app in one pass
-- If it still looks generic: re-prompt with sharper direction (reference a specific
-  site's vibe, name concrete mood words) rather than accepting the first pass
+- If it still looks generic: **retrieve, don't re-prompt.** Run `/design-source` and
+  replace the offending section with adapted registry source. Sharper prompting only
+  selects a different average — it cannot get you off the average.
 - Test golden path + edge cases live in the browser, not just via unit tests
 - **Stop here and report.** Present the full scorecard — every page scored, every Fail/Warn
   with a one-line reason, plus any entity classified **ambiguous** in step 2 that's still
@@ -71,8 +76,9 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 
 - Skipping step 4 (visual verification) is the #1 reason code passes review but
   still "feels AI-made" — slop is often visual, not just structural
-- Vague prompts defeat `frontend-design` even though it's active — specificity is
-  the actual lever, the skill just executes on it
+- Specificity helps `frontend-design` pick a direction, but it is not the lever for
+  slop — retrieval is. A perfectly specific prompt still generates. Reach for
+  `/design-source` before reaching for better adjectives.
 - Don't run `simplify` before the build is functionally done — it optimizes what
   exists, running it mid-build just means redoing the pass later
 

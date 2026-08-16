@@ -3,14 +3,19 @@
 For an already-built app/website — working code, real git history, existing components.
 Goal: remove generic/bloated patterns without a risky full rewrite.
 
-Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in skills,
-`explorer` / `test-runner` / `code-reviewer` subagents in `~/.claude/agents/`.
+Assumes: `/design-source` + `/context-brief` skills (the retrieval layer — see
+`../_knowledge/START-HERE.md`), `frontend-design` plugin, `simplify`/`security-review`/`run`
+built-in skills, `explorer` / `test-runner` / `code-reviewer` subagents in `~/.claude/agents/`.
 
 ## 1. Audit first, don't rewrite blind
 
-- Send the `explorer` subagent to inventory slop hotspots: generic default classes
-  (`bg-gray-100`, `text-blue-500`), unstyled `container`/`wrapper` divs, over-commented
-  files, dead code, duplicate logic
+- Run the tiered scan in `../_knowledge/slop-signatures.md` (via `/design-source` step 2)
+  for the UI half — it separates defects (Tier B: `transition-all`, missing
+  `prefers-reduced-motion`, `hover:` without `focus-visible:`) from generated tells
+  (Tier A) from mere smells (Tier C). Report counts with `file:line`, and say so plainly
+  if the code is mostly clean — inventing slop to justify a rewrite is worse than the slop.
+- Send the `explorer` subagent for the non-UI half: over-commented files, dead code,
+  duplicate logic, one-use abstractions
 - Classify each data entity type found in the code (user-owned/mutable,
   system-generated/immutable, or ambiguous) per
   `~/.claude/skills/no-ai-slop/references/checklist.md`'s "Entity mutability classification" —
@@ -35,9 +40,10 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 
 ## 2. UI slop — reshape, don't regenerate from scratch
 
-- `frontend-design` explicitly supports this: point at a specific component/page and
-  say what's wrong — "this dashboard looks generic, make it distinctive" — triggers a
-  redesign pass on existing code, not just new builds
+- **`/design-source` is the reshape tool.** "Make it distinctive" is a prompt, and a
+  prompt cannot escape the average — retrieve a registry component and adapt it to the
+  project's real stack (JSX/TSX, Tailwind major from the lockfile, palette remaps,
+  `cn()`, reduced-motion). `frontend-design` still chooses the direction.
 - Go component-by-component, not a full-app rewrite in one shot — smaller diffs,
   lower regression risk
 - Screenshot before (via `claude-in-chrome`), redesign, screenshot after — compare
@@ -58,9 +64,9 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
 
 ## 5. Order for an existing app
 
-1. `explorer` → audit/inventory slop, score against the checklist
+1. `slop-signatures.md` scan (UI) + `explorer` (non-UI) → inventory, score against the checklist
 2. **Report the full scorecard, wait for go-ahead** — do not proceed until approved
-3. `frontend-design` → reshape UI, one component at a time, screenshot-verify each
+3. `/design-source` → retrieve + adapt, one component at a time, screenshot-verify each
 4. `simplify` → clean up code structure
 5. `code-reviewer` + `security-review` → catch regressions
 6. `/test` → confirm nothing broke
@@ -72,8 +78,8 @@ Assumes: `frontend-design` plugin, `simplify`/`security-review`/`run` built-in s
   one component/page/module at a time
 - Skipping the branch + per-component commit discipline turns a cleanup into an
   unreviewable diff
-- An audit pass (`explorer`) before touching anything prevents redesigning parts
-  of the app that were already fine
+- An audit pass (signature scan + `explorer`) before touching anything prevents
+  redesigning parts of the app that were already fine
 
 See also: [`no-ai-slop-scratch-build/`](../no-ai-slop-scratch-build/) for a
 brand-new app instead of an existing one.
