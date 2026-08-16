@@ -11,16 +11,13 @@ uncommitted. The skills are now backed up too. Pick up from:
    below — nothing is built yet, and the build was NOT approved.** Start by re-reading
    *"Layer 4 — evals: agreed design, not yet built"* further down this file, then confirm
    with the user before writing any code. **Biggest remaining gap and the top priority.**
-2. **`~/.claude/commands/` and `~/.claude/agents/` are still unbacked** — 10 custom slash
-   commands and 5 subagent definitions, hand-written, existing only on this disk. Exactly
-   the gap the skills were in before `_skills/` closed it, and closable the same way:
-   extend `TRACKED` in `_skills/sync-skills.js`. Small; needs the user's nod on layout.
-3. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
+2. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
    Least defined; needs scoping before work starts.
 
 ~~4. Deploy `calendar-api`.~~ **DONE 2026-08-16** — deployed and verified in production.
 ~~5. Resolve the `impeccable` duplicate.~~ **DONE 2026-08-16** — investigated, not a defect.
-~~6. Back up the 7 custom skills.~~ **DONE 2026-08-16** — mirrored into `_skills/` and pushed.
+~~6. Back up the hand-written config.~~ **DONE 2026-08-16** — the 7 skills, 10 commands and
+5 subagents are all mirrored into `_claude-config/` and pushed.
 
 All three closures are detailed under *Known open items*.
 
@@ -75,7 +72,7 @@ _knowledge/
   PROOF-design-layer.md    Layer 1b proof (design)
 
 ../_standard/README.md     Layer 2 — the ruler (points at Anthropic's checklist) + audit scorecard
-../_skills/                backup mirror of the 7 hand-written skills + sync-skills.js
+../_claude-config/         backup mirror of the hand-written skills/commands/agents + sync.js
 ```
 
 ## The loop, in practice
@@ -131,9 +128,9 @@ _knowledge/
   Context7 tokens. The brief's fix applied and verified by reproducing the failure.
 - **Backed up 2026-08-16:** Layers 1, 1b and 2 are committed and pushed to
   `github.com/shrinivas-sn/dev-recipes`. Before that they existed only on this disk.
-  **The 7 hand-written skills followed, same day** — mirrored into `_skills/` by
-  `_skills/sync-skills.js`, 13 files, byte-verified. `~/.claude/commands` and
-  `~/.claude/agents` remain unbacked.
+  **The hand-written config followed, same day** — 7 skills, 10 commands and 5 subagents
+  mirrored into `_claude-config/` by `_claude-config/sync.js`. 28 files, byte-verified
+  against a fresh clone.
 - **Unproven:** Firecrawl tier 4 (never warranted yet).
 - **Layer 4 (evals):** **designed 2026-08-16, not built.** Format, location, runner and the
   three `context-brief` scenarios are all decided — see the Layer 4 section above. No code,
@@ -284,11 +281,12 @@ auto-triggering otherwise fails every eval for the wrong reason.
   `main` is now in sync with `origin/main`.** Layers 1, 1b and 2 are backed up.
   Lesson worth keeping: this item was recorded as "no git at all" when the real problem was
   "the new work is untracked in an existing repo". Check the repo, don't trust the note.
-- ~~The 7 custom skills are not backed up anywhere.~~ **CLOSED 2026-08-16.** Mirrored into
-  `_skills/` and pushed. 13 files across the 7 skills; `sync-skills.js --check` compares
-  byte-for-byte and reports "in sync". The live skills stay in `~/.claude/skills` and are
-  still what Claude Code loads — this is a **mirror, not a move**, so nothing about how
-  skills load changed.
+- ~~The 7 custom skills are not backed up anywhere.~~ **CLOSED 2026-08-16**, and extended
+  the same session to cover `~/.claude/commands` (10) and `~/.claude/agents` (5). All of it
+  is mirrored into `_claude-config/` and pushed — 28 files; `sync.js --check` compares
+  byte-for-byte and reports "in sync". The live config stays under `~/.claude` and is still
+  what Claude Code loads — this is a **mirror, not a move**, so nothing about how skills,
+  commands or agents load changed.
 
   Three things worth not re-deriving:
   - **`~/.claude/skills` has 17 entries but only 8 real directories.** Nine are symlinks to
@@ -304,10 +302,12 @@ auto-triggering otherwise fails every eval for the wrong reason.
     delete its backup too — the backup tool completing the loss it exists to prevent. Same
     principle as `verify-sources.js` refusing to stamp a partial pass.
 
-  **Still open, same risk class:** `~/.claude/commands/` (10 files) and `~/.claude/agents/`
-  (5 files) are hand-written and unbacked. Found while doing this. Closable by extending
-  `TRACKED` in `sync-skills.js`; left for the user because it changes what the directory
-  claims to hold.
+  One asymmetry worth knowing: `skills/` is tracked by an explicit **name list**, so the
+  refuse-on-missing guard applies to it. `commands/` and `agents/` are mirrored as whole
+  directories — everything in them is hand-written, no symlinks — so there is no name list
+  whose absence could be detected, and a deletion there would propagate on the next sync.
+  It still *prints* as a `delete` line and `--check` shows it before anything is written,
+  but that group is guarded by reading the output, not by the abort.
 
 - ~~`impeccable` is installed **twice** — needs a user decision.~~ **CLOSED 2026-08-16 — not a
   defect, and no decision was needed.** It is one skill at one version (**4.0.4** in both)

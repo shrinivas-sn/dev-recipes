@@ -24,12 +24,13 @@ marked with `<ANGLE_BRACKETS>`).
   good. Deliberately does *not* restate a spec — the checklist is Anthropic's
   `anthropic-best-practices.md`, shipped with the `superpowers` plugin. This folder holds
   only the local deltas (where this setup knowingly departs) and the audit scorecard.
-- [`_skills/`](./_skills/) — backup mirror of the 7 hand-written Claude Code skills that
-  drive the layers above (`context-brief`, `design-source`, `no-ai-slop`,
-  `no-ai-slop-writing`, `api-idea-scout`, `production-readiness`, `animation-ref`). The live
-  copies stay in `~/.claude/skills`; `sync-skills.js` refreshes this mirror and
-  `--check` reports drift byte-for-byte without writing. Vendor-installed skills are
-  deliberately not mirrored — they're reinstallable.
+- [`_claude-config/`](./_claude-config/) — backup mirror of the hand-written Claude Code
+  config: the 7 skills that drive the layers above (`context-brief`, `design-source`,
+  `no-ai-slop`, `no-ai-slop-writing`, `api-idea-scout`, `production-readiness`,
+  `animation-ref`), plus the 10 slash commands and 5 subagents. The live copies stay under
+  `~/.claude`; `sync.js` refreshes this mirror and `--check` reports drift byte-for-byte
+  without writing. Vendor-installed skills are deliberately not mirrored — they're
+  reinstallable.
 
 ## Recipes
 

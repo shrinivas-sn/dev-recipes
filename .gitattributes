@@ -1,5 +1,5 @@
-# Keep the skills mirror byte-identical to the live copies in ~/.claude/skills.
+# Keep the config mirror byte-identical to the live copies under ~/.claude.
 # Without this, core.autocrlf rewrites these to CRLF on checkout, and
-# `_skills/sync-skills.js --check` reports drift on all 13 files after a fresh
+# `_claude-config/sync.js --check` reports drift on all 28 files after a fresh
 # clone — false alarms in exactly the restore scenario the backup exists for.
-_skills/** text eol=lf
+_claude-config/** text eol=lf
