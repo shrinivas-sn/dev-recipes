@@ -5,21 +5,24 @@ Read this file at the start of any build/design session. It is the whole system 
 ## Resume here — last session 2026-08-16
 
 Layers 1, 1b and 2 are **built, proven, committed and pushed**. Nothing in this repo is
-uncommitted. Pick up from one of these, in rough priority order:
+uncommitted. Two of last session's four items are now closed. Pick up from:
 
 1. **Layer 4 — evals.** 0 of 7 custom skills have any. No pattern exists to copy, so write
-   3 evals for **one** skill first as the template, then scale. Biggest remaining gap.
-2. **Deploy `calendar-api`.** Backend is live on Render but running a **pre-fix build** —
-   production still answers a malformed JSON body with `400 text/html`. The fix is 3 commits
-   on `develop`, unpushed. Push + deploy closes the last defect.
-3. **Resolve the `impeccable` duplicate.** Needs a user decision; diff the two `SKILL.md`
-   files first. See `_standard/README.md`.
-4. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
+   3 evals for **one** skill first as the template, then scale. **Biggest remaining gap and
+   the top priority.**
+2. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
+   Least defined; needs scoping before work starts.
 
-Before trusting any status line below, **verify it**. Two entries in this file were flat
-wrong last session: "nothing is committed to git" (it was always a repo) and "the backend is
-not deployed" (it had moved from Railway to Render). Both were written from a single stale
-observation. Check the repo, check the live host.
+~~3. Deploy `calendar-api`.~~ **DONE 2026-08-16** — deployed and verified in production.
+~~4. Resolve the `impeccable` duplicate.~~ **DONE 2026-08-16** — investigated, not a defect.
+
+Both closures are detailed under *Known open items*.
+
+Before trusting any status line below, **verify it**. Three entries in this file have now
+been flat wrong: "nothing is committed to git" (it was always a repo), "the backend is not
+deployed" (it had moved from Railway to Render), and "3 commits on `develop`" (there were
+**4**). Every one was written from a single stale observation. Check the repo, check the
+live host, count the commits.
 
 ## The problem this solves
 
@@ -140,8 +143,22 @@ _knowledge/
   Probing the Railway URL found in the docs "confirmed" a dead deployment that had simply
   been replaced. **Lesson: a 404 proves that URL is dead, not that the app is undeployed —
   find the current host before concluding anything.**
-  Still open: the **deployed build predates the error-handler fix** — a malformed JSON body
-  still answers `400 text/html`. The fix sits on `develop`, unpushed. Deploy closes it.
+  ~~Still open: the **deployed build predates the error-handler fix**.~~ **CLOSED 2026-08-16 —
+  deployed and verified.** Production now answers a malformed JSON body with
+  `400 application/json` carrying the `{error, message, status}` envelope; the three other
+  routes (`/`, `/v1/holidays`, unknown-route 404) were re-probed and are unchanged.
+  Verified locally first on a matching `express@5.2.1` stack, then live after Render rebuilt.
+
+  **Three facts from the deploy, worth not re-deriving:**
+  - **Render deploys from `main`, not `develop`.** Pushing `develop` backs work up but
+    deploys nothing. This is why the fix sat undeployed for a whole session.
+  - **The note said "3 commits"; there were 4** (`a8036c3` was missing from the count).
+    A commit count written from memory drifts — run `git log main..develop` instead.
+  - **`main` had diverged.** Five README-only commits (badges repointed Railway → Render)
+    had been pushed straight to `main` while the fixes sat on `develop`, so the first push
+    was rejected. Resolved by fetch + **merge** (`4b269ff`) — not force push, not rebase —
+    because both sides held real work with zero file overlap. A rejected push means fetch
+    and look; it does not mean force.
 - ~~Nothing in `E:\dev-recipes` is committed to git yet.~~ **Wrong, and now resolved
   2026-08-16.** It was always a git repo with a remote
   (`github.com/shrinivas-sn/dev-recipes`); what was untracked was the whole knowledge
@@ -150,8 +167,21 @@ _knowledge/
   `main` is now in sync with `origin/main`.** Layers 1, 1b and 2 are backed up.
   Lesson worth keeping: this item was recorded as "no git at all" when the real problem was
   "the new work is untracked in an existing repo". Check the repo, don't trust the note.
-- `impeccable` is installed **twice** — real 3.3 MB dirs in both `~/.agents/skills` and
-  `~/.claude/skills`, with differing `SKILL.md`. Needs a user decision; see `_standard/README.md`.
+- ~~`impeccable` is installed **twice** — needs a user decision.~~ **CLOSED 2026-08-16 — not a
+  defect, and no decision was needed.** It is one skill at one version (**4.0.4** in both)
+  shipped as two **harness-specific builds**: the `~/.claude` copy carries Claude Code
+  frontmatter (`user-invocable`, `allowed-tools`) and `/impeccable` + `.claude/` paths, the
+  `~/.agents` copy uses `$impeccable` + `.agents/` paths. All 14 differing lines are plumbing;
+  no behavioural difference. **The `~/.claude` copy is the one Claude Code loads. Keep both.**
+
+  What settled it: `~/.agents/.skill-lock.json` tracks **9** skills and `impeccable` is not
+  among them — those 9 are exactly the 9 symlinks in `~/.claude/skills`. So it never came from
+  `npx skills@latest`; it has its own installer that writes to both harness roots by design,
+  and `npx skills@latest update -g` will not touch it. Full table in `_standard/README.md`.
+
+  **Lesson: "the same file exists twice and differs" is not automatically a conflict.** Check
+  what installed it before assuming a duplicate needs resolving — the installer's lockfile
+  answered in one read what a `SKILL.md` diff alone could not.
 - ~~The old `no-ai-slop-*` recipes still say "look at it" / "name mood words".~~ Done
   2026-08-16 — but **not by folding them in**. That earlier instruction was wrong: `no-ai-slop`
   is a *pipeline* (detect → audit → build → visual-verify → simplify → review → test → ship,

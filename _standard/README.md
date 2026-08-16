@@ -69,12 +69,32 @@ requiring a fix today.
 
 ### Found while auditing, outside the custom 7
 
-- **`impeccable` is installed twice** — `~/.agents/skills/impeccable` and
-  `~/.claude/skills/impeccable` are both real 3.3 MB directories (not a symlink pair, unlike
-  the other 9 emilkowalski skills), and their `SKILL.md` files **differ**. 6.6 MB on disk and
-  no obvious rule for which copy loads. Related symptom: `pick-ui-library`, `prototype`, and
-  `review-animations` exist in `~/.agents/skills/` but did not appear in the session skill
-  listing on 2026-08-16. Not touched — deleting either copy is the user's call.
+- ~~**`impeccable` is installed twice**~~ — **investigated and closed 2026-08-16. Not a
+  defect; no action needed.** It is one skill at one version (**4.0.4** in both copies)
+  shipped as **two harness-specific builds**, not two competing versions.
+
+  The decisive evidence is `~/.agents/.skill-lock.json`: it tracks **9** skills, and
+  `impeccable` **is not one of them**. Those 9 are exactly the 9 symlinks in
+  `~/.claude/skills/`. So `impeccable` never came from `npx skills@latest` — it has its own
+  installer (note `allowed-tools: Bash(npx impeccable *)` in its frontmatter), which writes a
+  real directory to each harness location by design.
+
+  The 14 differing `SKILL.md` lines are all plumbing, no behavioural content:
+
+  | | `~/.claude` copy | `~/.agents` copy |
+  |---|---|---|
+  | Frontmatter | adds `user-invocable`, `argument-hint`, `license`, `allowed-tools` | none of these |
+  | Invocation | `/impeccable …` | `$impeccable …` |
+  | Script paths | `.claude/skills/impeccable/scripts/…` | `.agents/skills/impeccable/scripts/…` |
+
+  **Which copy loads: the `~/.claude` one** — it is the copy carrying Claude Code frontmatter
+  and `.claude/` script paths. Keep both. `npx skills@latest update -g` will not touch either
+  (untracked), so the `.agents` copy is only removable disk (~3.0 MB) and only if no other
+  harness is ever used here. Deleting it is optional cleanup, not a fix.
+- ~~Related symptom: `pick-ui-library`, `prototype`, `review-animations` missing from the
+  session skill listing.~~ **Also gone** — all three appear in the session listing as of
+  2026-08-16. The earlier observation was of a single session's listing, not a durable state.
+  Lesson: a skill absent from one session's listing is not evidence of a broken install.
 - **`emil-design-eng` is 674 lines**, over the checklist's 500-line SKILL.md limit. Upstream's
   file, upstream's call. Noted so the number isn't rediscovered.
 
