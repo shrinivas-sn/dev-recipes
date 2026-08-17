@@ -1,0 +1,29 @@
+{
+  "name": "02-jsx-tsx-mismatch",
+  "skills": ["design-source"],
+  "guards": "JSX/TSX mismatch — the recorded trap in design-source's own SKILL.md Step 1: 'Do not infer from @types/* being installed.' This fixture is a JSX-only project (.jsx files, no tsconfig.json, no .tsx anywhere) that nonetheless installs @types/react and @types/react-dom for editor intellisense. The requested component (accessible tabs) is a structural primitive — shadcn's exclusive territory ('button, card, dialog, tabs, form, table') and outside React Bits' scope entirely ('Animated text, backgrounds, cursor and scroll effects'), so this forces genuine engagement with a TSX-only registry in a JSX project. Two prior drafts of this scenario (spotlight-card, number-ticker) both failed to force the trap because React Bits turned out to cover those patterns too (SpotlightCard, CountUp) and the skill correctly preferred it — a structural primitive has no such overlap.",
+  "query": "Add an accessible tabs component to src/components/Dashboard.jsx so the page can switch between an 'Overview' view and a 'Settings' view.",
+  "files": [
+    "fixtures/jsx-tsx-mismatch/package.json",
+    "fixtures/jsx-tsx-mismatch/package-lock.json",
+    "fixtures/jsx-tsx-mismatch/tailwind.config.js",
+    "fixtures/jsx-tsx-mismatch/src/index.css",
+    "fixtures/jsx-tsx-mismatch/src/components/Dashboard.jsx"
+  ],
+  "expected_behavior": [
+    "The design-source skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Correctly identifies the project as JSX from the actual file extensions and the absence of a tsconfig.json / .tsx files — not from the presence of @types/react and @types/react-dom, which are installed here for editor support only",
+    "Retrieves real source for the tabs component from shadcn via WebFetch rather than hand-writing it — this is a structural primitive outside React Bits' scope, so shadcn's TSX-only source is the correct, unavoidable choice here",
+    "Strips TypeScript syntax before the code lands in the .jsx file: no `interface` declarations, no explicit parameter/return type annotations, no generic angle-bracket syntax survive in the delivered code block",
+    "Component structure, prop names, and control flow are unchanged from the retrieved TSX source (visible earlier in the transcript) — no logic was rewritten in the same pass as the type strip. Adapting styling to the project's actual conventions does NOT count against this item: this fixture has no shadcn CSS-variable theme, so remapping theme-token classes (e.g. bg-muted, ring-ring) to concrete utilities, narrowing transition-all per the skill's own defect list, dropping a Next.js-only 'use client' directive in this Vite project, and adding a minimal local cn() are all required Step 4 adaptation, not the forbidden 'tidying'",
+    "Cites the retrieved source per Step 5: a comment naming the registry, the URL, and the licence (MIT)"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "design-source" },
+    { "covers": 1, "type": "answer_matches", "pattern": "\\bJSX\\b" },
+    { "covers": 2, "type": "tool_arg_matches", "tool": "WebFetch", "pattern": "ui\\.shadcn\\.com" },
+    { "covers": 3, "type": "answer_code_not_matches", "pattern": "\\binterface\\s+\\w+|:\\s*React\\.FC|:\\s*(string|number|boolean)\\b" },
+    { "covers": 5, "type": "answer_matches", "pattern": "Source:.*shadcn" },
+    { "covers": 5, "type": "answer_matches", "pattern": "MIT" }
+  ]
+}

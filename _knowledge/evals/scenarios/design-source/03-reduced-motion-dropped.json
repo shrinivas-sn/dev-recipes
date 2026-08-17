@@ -1,0 +1,24 @@
+{
+  "name": "03-reduced-motion-dropped",
+  "skills": ["design-source"],
+  "guards": "Reduced-motion dropped — the single most-missed item on the adaptation checklist (design-sources.yaml adaptation_checklist, id: reduced_motion; 'Most registry components do NOT [respect prefers-reduced-motion]. Add the branch.'). The requested effect is a continuous cursor-driven spark animation, exactly the kind of always-on motion that is a real problem for motion-sensitive users if pasted verbatim from the registry with no accommodation added.",
+  "query": "Add a click-spark cursor effect to the CTA button in src/components/CtaButton.jsx — a little burst of particles should fire from the cursor position on click.",
+  "files": [
+    "fixtures/reduced-motion-drop/package.json",
+    "fixtures/reduced-motion-drop/package-lock.json",
+    "fixtures/reduced-motion-drop/tailwind.config.js",
+    "fixtures/reduced-motion-drop/src/index.css",
+    "fixtures/reduced-motion-drop/src/components/CtaButton.jsx"
+  ],
+  "expected_behavior": [
+    "The design-source skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Retrieves real source for the click-spark effect from a registry (React Bits ClickSpark) via WebFetch rather than hand-writing it",
+    "The delivered code includes a prefers-reduced-motion accommodation (a media query check or a JS matchMedia guard) that the retrieved registry component does not ship by default — this is the one thing the scenario grades, not general effect quality",
+    "Frames the addition as an accessibility requirement, not an optional polish step, consistent with the skill's own framing"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "design-source" },
+    { "covers": 1, "type": "tool_arg_matches", "tool": "WebFetch", "pattern": "reactbits\\.dev" },
+    { "covers": 2, "type": "answer_code_matches", "pattern": "prefers-reduced-motion|matchMedia\\([\"']\\(prefers-reduced-motion" }
+  ]
+}

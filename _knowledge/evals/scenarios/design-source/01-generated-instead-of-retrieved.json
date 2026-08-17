@@ -1,0 +1,29 @@
+{
+  "name": "01-generated-instead-of-retrieved",
+  "skills": ["design-source"],
+  "guards": "Generation instead of retrieval — the core failure design-source exists to prevent. A scroll-triggered, staggered text reveal on a hero heading is exactly the kind of effect a model confidently hand-writes from memory (a framer-motion variants object, or a hand-rolled IntersectionObserver + CSS stagger) without ever touching a registry. React Bits ships this exact primitive (SplitText) at a stable URL. A good answer retrieves it — via WebFetch, since Bash/curl is denied in eval runs — and cites it; a bad answer invents an animation and never calls a retrieval tool.",
+  "query": "The hero heading in src/components/Hero.jsx just sits there. Add a staggered text reveal animation that plays when it scrolls into view — split the heading into pieces and animate them in one after another.",
+  "files": [
+    "fixtures/hero-generation-trap/package.json",
+    "fixtures/hero-generation-trap/package-lock.json",
+    "fixtures/hero-generation-trap/tailwind.config.js",
+    "fixtures/hero-generation-trap/src/index.css",
+    "fixtures/hero-generation-trap/src/components/Hero.jsx"
+  ],
+  "expected_behavior": [
+    "The design-source skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Attempts real retrieval from a code-bearing registry via a tool call rather than skipping straight to hand-writing the animation. Bash is denied in eval runs (the skill's own curl one-liner cannot execute), so the reachable path is WebFetch against a registry URL",
+    "Queries React Bits specifically — the registry documented as best-fit for a plain-JS (JSX) project because it is the only one publishing a JSX variant with no type-stripping step",
+    "The final answer cites the retrieved source per Step 5: a comment naming the registry, the URL, and the licence (MIT)",
+    "Names the retrieved component's dependency (e.g. gsap) as something to add/install, not something already available — this fixture's package.json does not list it, so a good answer surfaces an install step (an added dependencies entry, an npm/pnpm/yarn install line, or equivalent) rather than silently assuming the peer dependency is present"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "design-source" },
+    { "covers": 1, "type": "tool_used", "pattern": "WebFetch" },
+    { "covers": 2, "type": "tool_arg_matches", "tool": "WebFetch", "pattern": "reactbits\\.dev" },
+    { "covers": 3, "type": "answer_matches", "pattern": "Source:.*React Bits" },
+    { "covers": 3, "type": "answer_matches", "pattern": "MIT" },
+    { "covers": 4, "type": "answer_matches", "pattern": "gsap" },
+    { "covers": 4, "type": "answer_matches", "pattern": "npm install|npm i \\b|add.{0,20}(dependenc|package)" }
+  ]
+}

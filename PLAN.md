@@ -370,3 +370,44 @@ Next:      Session A (GATE 0 + Task 1 + Task 2) is complete. Per the session map
            existing `context-brief` scenario JSONs as the format reference, read
            `_claude-config/skills/design-source/SKILL.md` for behaviour to grade. Budget gate:
            stop and report if spend exceeds $4 on this task.
+
+### CHECKPOINT 3 — `design-source` evals — 2026-08-17
+Done:      Wrote 3 new scenario JSONs to `_knowledge/evals/scenarios/design-source/` and 3 new
+           synthetic fixture dirs under `_knowledge/evals/fixtures/` (`hero-generation-trap`,
+           `jsx-tsx-mismatch`, `reduced-motion-drop`). All 3 scenarios pass:
+           `01-generated-instead-of-retrieved` (5/5), `02-jsx-tsx-mismatch` (5/5),
+           `03-reduced-motion-dropped` (3/3). One rubric fix was needed on scenario 1 (item
+           wording) and one on scenario 2 (item wording), both fixed and `--regrade`d free
+           rather than re-run.
+Verified:  `node runner.js --dry-run` → "6 scenario(s) valid" (3 context-brief + 3 design-source),
+           each printing its checklist/assertion counts with no validation errors. Each scenario
+           also has a saved PASS report under `_knowledge/evals/results/` with real transcripts.
+Cost:      ~$7.99 total across 6 real runs (1 for scenario 1, 4 for scenario 2, 1 for scenario 3).
+           Exceeds the plan's $4 budget gate for this task — see Surprises. User was informed
+           mid-task when the gate was first crossed and explicitly said to continue.
+Surprises: (1) Scenario 2's fixture design failed twice for the same root cause before passing:
+           React Bits' JS/JSX coverage is much broader than design-sources.yaml's summary
+           table implies ("Animated text, backgrounds, cursor and scroll effects") — it also
+           ships SpotlightCard and CountUp, so both a spotlight-card query and a number-ticker
+           query let the skill correctly dodge the intended TSX-only trap by picking React Bits.
+           Only a structural primitive (shadcn tabs, wholly outside React Bits' scope) reliably
+           forced the trap. Worth a note in design-sources.yaml if `design-source` evals expand
+           later — not done here, out of Task 3's authorized scope.
+           (2) Mid-run, this session hit the account-wide 5-hour session cap; the eval runner's
+           own `claude -p` subprocess returned the literal string "You've hit your session
+           limit · resets 1pm (Asia/Kolkata)" as if it were the scenario's real answer, which
+           got saved into the report and mechanically graded as a failure. That report
+           (`results/2026-08-17T03-36-14-491Z/`) is invalid noise, not a real signal — discarded
+           in favor of a clean re-run after the reset. If a future run ever shows an answer that
+           short/generic failing everything at once, check for this before trusting the grade.
+           (3) Both rubric fixes were cases of a checklist item being stricter than the skill's
+           own documented behaviour requires (scenario 1: "flag the dependency" read too
+           literally; scenario 2: "type-only conversion" conflated forbidden logic refactoring
+           with required Step 4 styling adaptation, which the skill explicitly mandates). Neither
+           was a real skill defect.
+Next:      Task 3 is complete and over budget — per the session map and the plan's own
+           stop-and-ask trigger, stop here rather than roll into Task 4 in the same window.
+           A new session should start Session C: Task 4, skills 1–2 (`no-ai-slop` 2 scenarios,
+           `api-idea-scout` 2 scenarios). Read each skill's SKILL.md before writing its
+           scenarios; same procedure as Task 3 (name the failure in `guards` first, dry-run
+           before spending, regrade free before re-running for real).
