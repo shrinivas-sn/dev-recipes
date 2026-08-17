@@ -1,0 +1,27 @@
+{
+  "name": "02-tailwind-v3-id-trap",
+  "skills": ["context-brief"],
+  "guards": "The Tailwind v3-vs-v4 Context7 id. sources.yaml lists two ids for one domain: /websites/tailwindcss is v4, /websites/v3_tailwindcss is v3. Querying the wrong one returns fluent, wrong answers — v4 is CSS-first (@theme, @import \"tailwindcss\"), v3 is JS-config, and v4 syntax in a v3 project silently produces unstyled output. sources.yaml also records Tailwind's llms.txt as a confirmed 404, so probing tier 2 here is re-discovering a known absence.",
+  "query": "Add a custom brand colour (#0f5132) and a custom '2xs' font size to this project's Tailwind setup. Show me exactly where they go and what the config should look like.",
+  "files": [
+    "fixtures/tailwind-v3-app/package.json",
+    "fixtures/tailwind-v3-app/package-lock.json",
+    "fixtures/tailwind-v3-app/tailwind.config.js",
+    "fixtures/tailwind-v3-app/src/index.css"
+  ],
+  "expected_behavior": [
+    "The context-brief skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Identifies the installed Tailwind major as 3.x from the project's own files before choosing a source",
+    "Queries the v3 Context7 id (/websites/v3_tailwindcss) and not the v4 id (/websites/tailwindcss)",
+    "Does not fetch or probe a Tailwind llms.txt — sources.yaml records it as a confirmed 404 with an llms_txt_checked date",
+    "Answers in v3 JS-config syntax (theme.extend in tailwind.config.js) and prescribes no v4 CSS-first syntax such as @theme or @import \"tailwindcss\". Scoped to code blocks: naming v4 syntax in prose to warn against it is correct behaviour, not a failure."
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "context-brief" },
+    { "covers": 2, "type": "tool_arg_matches", "tool": "context7", "pattern": "v3_tailwindcss" },
+    { "covers": 2, "type": "tool_arg_not_matches", "tool": "context7", "pattern": "/websites/tailwindcss" },
+    { "covers": 3, "type": "tool_arg_not_matches", "tool": "WebFetch|WebSearch", "pattern": "llms" },
+    { "covers": 4, "type": "answer_code_matches", "pattern": "theme\\s*:|extend\\s*:" },
+    { "covers": 4, "type": "answer_code_not_matches", "pattern": "@theme|@import\\s+[\"']tailwindcss[\"']" }
+  ]
+}

@@ -2,24 +2,26 @@
 
 Read this file at the start of any build/design session. It is the whole system in one page.
 
-## Resume here — last session 2026-08-16
+## Resume here — last session 2026-08-17
 
-Layers 1, 1b and 2 are **built, proven, committed and pushed**. Nothing in this repo is
-uncommitted. The skills are now backed up too. Pick up from:
+Layers 1, 1b, 2 and the **first slice of Layer 4** are built, proven, committed and pushed.
+Nothing in this repo is uncommitted. Pick up from:
 
-1. **Layer 4 — evals.** 0 of 7 custom skills have any. **Design is decided and written up
-   below — nothing is built yet, and the build was NOT approved.** Start by re-reading
-   *"Layer 4 — evals: agreed design, not yet built"* further down this file, then confirm
-   with the user before writing any code. **Biggest remaining gap and the top priority.**
+1. **Layer 4 — widen coverage.** `context-brief` now has 3 scenarios, all passing. The other
+   6 skills have none. Two design gaps are open and named in `_knowledge/evals/README.md`:
+   **no baseline arm** (a pass proves no regression, not that the skill helped), and
+   `skill_fired` is only gradable under `--auto-trigger`. Read that README before adding
+   scenarios — it lists four mistakes that each cost a paid run.
 2. **Layer 3** — refined `recipes/` beyond the no-ai-slop pair, and `_core/` (empty dir).
    Least defined; needs scoping before work starts.
 
+~~3. Layer 4 first build.~~ **DONE 2026-08-17** — runner, 3 scenarios, 3 fixtures, README.
 ~~4. Deploy `calendar-api`.~~ **DONE 2026-08-16** — deployed and verified in production.
 ~~5. Resolve the `impeccable` duplicate.~~ **DONE 2026-08-16** — investigated, not a defect.
 ~~6. Back up the hand-written config.~~ **DONE 2026-08-16** — the 7 skills, 10 commands and
 5 subagents are all mirrored into `_claude-config/` and pushed.
 
-All three closures are detailed under *Known open items*.
+All four closures are detailed under *Known open items*.
 
 **A note on how to explain this work.** The eval design was first presented to the user in
 heavy jargon (rubric / deterministic assertions / LLM judge / transcript) and it did not land
@@ -132,15 +134,23 @@ _knowledge/
   mirrored into `_claude-config/` by `_claude-config/sync.js`. 28 files, byte-verified
   against a fresh clone.
 - **Unproven:** Firecrawl tier 4 (never warranted yet).
-- **Layer 4 (evals):** **designed 2026-08-16, not built.** Format, location, runner and the
-  three `context-brief` scenarios are all decided — see the Layer 4 section above. No code,
-  no `evals/` directory yet. Build not approved; confirm before starting.
+- **Layer 4 (evals): first slice BUILT and PASSING 2026-08-17.** `_knowledge/evals/` holds
+  `runner.js`, 3 `context-brief` scenarios, 3 synthetic fixtures and a README. All three pass
+  (`01` and `03` with the judge on). ~$0.80 per scenario run; `--regrade` replays a saved
+  report through a revised checklist for free. Runs execute in a throwaway workspace with
+  `Write`/`Edit`/`MultiEdit`/`NotebookEdit`/`Bash` denied, so an eval cannot mutate the repo it
+  grades against. **Coverage is 1 of 7 skills, and there is still no baseline arm** — a pass
+  means no regression, not proof the skill helped. Details and the four rubric-design traps:
+  `_knowledge/evals/README.md`.
 - **Not started:** refined `recipes/` beyond the no-ai-slop pair, `_core/` (empty dir).
 
-## Layer 4 — evals: agreed design, not yet built
+## Layer 4 — evals: design, and what got built
 
-**Status: designed 2026-08-16, approved in outline, NOT built. Confirm with the user before
-writing code.** Nothing in `_knowledge/evals/` exists yet — the directory itself is unmade.
+**Status: designed 2026-08-16, first slice built 2026-08-17 — runner + 3 `context-brief`
+scenarios + README, all passing.** The design below is what was agreed; where the build had to
+depart from it (forced skill invocation, tool-arg-scoped assertions, `--regrade`), the reasons
+are in `_knowledge/evals/README.md`. Read the README before adding scenarios — the design alone
+will lead you into rubric mistakes that each cost a paid run.
 
 ### What an eval is, in plain terms
 
@@ -157,7 +167,8 @@ Run the task, check it against the list, get a pass or fail. Like a driving test
 ticking boxes, not judging vibes.
 
 Anthropic's checklist (`anthropic-best-practices.md`, shipped with `superpowers` — locate it,
-don't pin the path) requires **at least three evals per skill**. Current state: 0 of 7.
+don't pin the path) requires **at least three evals per skill**. Current state: **1 of 7 skills
+covered** — `context-brief` has its three; the other six have none.
 
 ### The three decisions the user made
 
@@ -167,7 +178,7 @@ don't pin the path) requires **at least three evals per skill**. Current state: 
 | Where do evals live? | **`_knowledge/evals/`** in this repo — git-backed, alongside Layers 1–3. Skills stay where they are; evals reference them by name. |
 | How does it run? | **A node runner (`runner.js`) shelling `claude -p`**, with *hybrid* grading — mechanical checks where the outcome is mechanical, and a judge model only for genuine judgment calls. Follows the `verify-sources.js` precedent. |
 
-### Planned layout
+### Layout (as built)
 
 ```
 _knowledge/evals/
@@ -175,8 +186,8 @@ _knowledge/evals/
   runner.js                      executes + grades, writes a report
   scenarios/context-brief/       01-cache-version-drift.json
                                  02-tailwind-v3-id-trap.json
-                                 03-total-retrieval-failure.json
-  fixtures/                      throwaway mini-projects (package.json + lockfile)
+                                 03-retrieval-failure-labelling.json
+  fixtures/                      express-drift/ tailwind-v3-app/ unknown-dep/
   results/                       gitignored run output
 ```
 

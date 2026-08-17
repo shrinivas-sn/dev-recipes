@@ -1,0 +1,10 @@
+{
+  "name": "express-drift-fixture",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Eval fixture. The declared range ^5.0.0 CONTAINS 5.2.1 (the version the cached brief is pinned to), but the lockfile pins 5.1.0. Matching the range yields a false cache hit; matching the lockfile does not.",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^5.0.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "01-cache-version-drift",
+  "skills": ["context-brief"],
+  "guards": "Cache false-hit. The cached brief express-5-error-handling.md is pinned to express@5.2.1. This fixture DECLARES ^5.0.0 — a range that contains 5.2.1 — while the lockfile pins 5.1.0. Serving the cached brief here is the exact failure the proven cache-hit path had to dodge (START-HERE.md, 'Cache-hit path: PROVEN').",
+  "query": "I need to handle errors thrown by the async route handler in server.js — right now a rejected promise just hangs the request. What is the correct error-handling approach for the Express version this project actually installs, and does it need an explicit try/catch?",
+  "files": [
+    "fixtures/express-drift/package.json",
+    "fixtures/express-drift/package-lock.json",
+    "fixtures/express-drift/server.js"
+  ],
+  "expected_behavior": [
+    "The context-brief skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Pins the Express version from package-lock.json (5.1.0), not from the ^5.0.0 range declared in package.json",
+    "Declares the cached brief a MISS, because the brief's pinned_version (express@5.2.1) does not match the locked 5.1.0 — even though the declared range would contain it. Tested positively: an answer explaining why range-matching would produce a 'false cache hit' is correct, so a not-matches on 'cache hit' would mark right answers wrong",
+    "Performs fresh retrieval from the registered tier rather than serving the stale brief",
+    "States the Express-5 behaviour correctly: an async handler's rejection is forwarded to the error middleware automatically, so no per-route try/catch wrapper is needed"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "context-brief" },
+    { "covers": 1, "type": "transcript_matches", "pattern": "package-lock|lockfile" },
+    { "covers": 1, "type": "answer_matches", "pattern": "5\\.1\\.0" },
+    { "covers": 2, "type": "answer_matches", "pattern": "cache miss|\\bMISS\\b" },
+    { "covers": 3, "type": "tool_used", "pattern": "context7|WebFetch|WebSearch" }
+  ]
+}
