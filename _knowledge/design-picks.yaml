@@ -1,0 +1,240 @@
+# _knowledge/design-picks.yaml — browsable reference registry (Layer 1c)
+#
+# sources.yaml answers "what is this library's API?"
+# design-sources.yaml answers "what does real component CODE look like?"
+# This file answers "where does the USER go to pick a real design, so nothing
+# gets generated from model memory?"
+#
+# Built per PLAN.md (wholesale-rice-mock project, 2026-08-19) Step 1. Origin
+# diagnosis: a rice-mock build invented a gold/mustard palette, nav copy, and
+# footer links from training-data averages because no source existed to
+# retrieve from. This registry is that source. It is GENERIC — not scoped to
+# any one project or client type. The design-pick skill (Step 2, separate
+# session) reads this file to build a Phase N option list; the user browses
+# the links themselves and picks; Claude never renders, screenshots, scores,
+# or recommends.
+#
+# Hard rule this file exists to enforce:
+#   Never write a URL into this file from memory without probing it first.
+#   A dead or bot-blocked source gets recorded as such (see "dropped" notes
+#   per section) so the next run does not rediscover the same dead end.
+#
+# Probe convention (same as sources.yaml / design-sources.yaml):
+#   curl -s -o /dev/null -w "%{http_code} %{size_download}" -L <url>
+
+version: 1
+updated: 2026-08-19
+
+# ---------------------------------------------------------------------------
+# Meta-sources — multi-category galleries. Several sections below point back
+# here by category URL instead of duplicating entries. Both confirmed live
+# and confirmed to carry real per-section-type filtering (not guessed).
+# ---------------------------------------------------------------------------
+meta_sources:
+  - id: unsection
+    url: https://www.unsection.com/
+    what: >
+      Real shipped website sections, browsable by category. Categories
+      confirmed live 2026-08-19 (scraped from its own nav, not recalled):
+      hero-section-design, navbar-design, feature-section-design,
+      pricing-section-design, cta-section-design, testimonial-section-design,
+      faq-section-design, contact-section-design, footer-section-design,
+      team-section-design, portfolio-section-design, blog-section-design,
+      blog-header-section-design, logo-section-design.
+    category_url_pattern: "https://www.unsection.com/category/{slug}"
+    verified: 2026-08-19
+    verified_note: Homepage 200 (97.8 KB); all 14 category slugs above probed 200.
+
+  - id: onepagelove
+    url: https://onepagelove.com/
+    what: >
+      Live shipped landing pages, browsable by section type via /section/{type}.
+      Confirmed slugs (probed, not guessed): testimonials, metrics,
+      how-it-works, pricing, navigation.
+    section_url_pattern: "https://onepagelove.com/section/{type}"
+    verified: 2026-08-19
+    verified_note: >
+      Base 200 (72.0 KB). /section/testimonials 200, /section/metrics 200,
+      /section/how-it-works 200, /section/pricing 200, /section/navigation 200.
+      /section/process, /steps, /features all 404 — do not reuse those slugs.
+
+# ---------------------------------------------------------------------------
+# Sections — one per design-heavy phase the design-pick skill can run.
+# Priority order per PLAN.md section 9: palette first, then hero, then footer.
+# ---------------------------------------------------------------------------
+sections:
+
+  # --- 1. Palette — the critical gap that started this whole project -------
+  - id: palette
+    priority: 1
+    targets:
+      - { id: colorhunt, url: "https://www.colorhunt.co/", why: "Curated 4-color palette gallery, sortable by trend/new/popular." }
+      - { id: colorhunt-popular, url: "https://colorhunt.co/palettes/popular", why: "Same source, popular-sort view." }
+      - { id: uicolors, url: "https://uicolors.app/create", why: "Generates a full Tailwind-style 50-950 shade ramp from one seed color." }
+      - { id: realtimecolors, url: "https://www.realtimecolors.com/", why: "Preview a palette live on an actual UI mockup, not swatches in isolation." }
+      - { id: happyhues, url: "https://www.happyhues.co/", why: "Small curated set of palettes shown IN a real UI context (buttons, cards, nav)." }
+      - { id: adobe-color-explore, url: "https://color.adobe.com/explore", why: "Community-submitted palette trends, filterable by mood/theme." }
+      - { id: mycolorspace, url: "https://mycolor.space/", why: "Palette generator with harmony rules (complementary, triadic, etc.) shown explicitly." }
+      - { id: shecodes-palettes, url: "https://palettes.shecodes.io/", why: "Palette gallery with named palettes and direct hex export." }
+      - { id: colorffy, url: "https://colorffy.com/palette-generator", why: "Palette generator with accessibility contrast shown per pair." }
+      - { id: schemecolor, url: "https://www.schemecolor.com/", why: "Large tagged palette archive (by name, brand, mood)." }
+      - { id: material3-color, url: "https://m3.material.io/styles/color/system/overview", why: "Systematic color-role reference (not just swatches) — how a palette maps to real UI roles." }
+    dropped:
+      - { url: "https://coolors.co/trending", reason: "403 bot-blocked on probe 2026-08-19." }
+
+  # --- 2. Hero — second priority per PLAN.md section 9 -----------------------
+  - id: hero
+    priority: 2
+    targets:
+      - { id: awwwards, url: "https://www.awwwards.com/websites/", why: "Award-curated, high production value. JS-heavy — Firecrawl may be needed for deep browse (see sources.yaml tier 4)." }
+      - { id: godly, url: "https://godly.website/", why: "Design reference gallery, filterable by style tag." }
+      - { id: onepagelove-base, url: "https://onepagelove.com/", why: "Full shipped one-page sites — real hero-through-footer flow, not a mockup." }
+      - { id: saaspages, url: "https://saaspages.xyz/", why: "SaaS-specific landing pages, narrower/more relevant than general galleries for product sites." }
+      - { id: htmlrev, url: "https://www.htmlrev.com/", why: "Template/theme gallery with live previews, filterable by industry." }
+      - { id: designspells, url: "https://www.designspells.com/", why: "Hand-curated design inspiration, smaller and higher signal than aggregate galleries." }
+      - { id: bestwebsite-gallery, url: "https://bestwebsite.gallery/", why: "Award-style gallery, alternate curation from Awwwards/Godly." }
+      - { id: uigarage, url: "https://uigarage.net/", why: "UI pattern gallery organized by component/section type." }
+      - { id: minimal-gallery, url: "https://www.minimal.gallery/", why: "Minimalist-specific curation — useful when the brief calls for restraint over drama." }
+      - { id: landingfolio, url: "https://www.landingfolio.com/", why: "Landing pages filterable by category and section type." }
+    dropped:
+      - { url: "https://land-book.com/", reason: "403 bot-blocked on probe 2026-08-19." }
+      - { url: "https://www.lapa.ninja/", reason: "403 bot-blocked on probe 2026-08-19." }
+      - { url: "https://www.siteinspire.com/", reason: "429 rate-limited on probe 2026-08-19." }
+      - { url: "https://www.hero-patterns.com/", reason: "DNS/connect failure (curl 000) on probe 2026-08-19 — domain likely dead. Recalled from memory rather than discovered, did not resolve on probe. Recorded so it is not retried." }
+
+  # --- 3. Footer — third priority per PLAN.md section 9. Dedicated gallery. -
+  - id: footer
+    priority: 3
+    targets:
+      - { id: footer-design, url: "https://footer.design/", why: "Dedicated footer-only gallery, curated by NOOON Studio. The single best-fit source." }
+      - { id: unsection-footer, url: "https://www.unsection.com/category/footer-section-design", why: "Real shipped footers, category-filtered (see meta_sources.unsection)." }
+      - { id: abduzeedo-footers, url: "https://abduzeedo.com/footer-design-inspiration-only-gallery-earth", why: "Curated footer roundup with commentary." }
+      - { id: sitebuilderreport-footers, url: "https://www.sitebuilderreport.com/inspiration/website-footer-designs", why: "35+ example roundup with screenshots and source links." }
+      - { id: digitalsilk-footers, url: "https://www.digitalsilk.com/web-design/web-trends/website-footer-design-examples/", why: "Agency roundup, skews toward corporate/B2B footers." }
+      - { id: mycodelesswebsite-footers, url: "https://mycodelesswebsite.com/website-footer-designs/", why: "34-example roundup across Squarespace/Wix/Webflow/Framer builds." }
+      - { id: colorlib-footers, url: "https://colorlib.com/wp/website-footer-examples/", why: "25-example roundup, skews toward smaller/indie sites." }
+    dropped:
+      - { url: "https://www.footerdesign.co/", reason: "DNS/connect failure (curl 000) on probe 2026-08-19 — domain likely dead, do not reuse." }
+      - { url: "https://www.designrush.com/best-designs/websites/footer", reason: "403 bot-blocked on probe 2026-08-19." }
+    note: >
+      7 verified, short of the 10-per-section target — dedicated footer
+      galleries are genuinely scarcer than hero galleries. Do not pad with
+      weak/duplicate sources to hit the number; the hero section's full-page
+      galleries (awwwards, godly, onepagelove, etc.) also show real footers
+      if a phase needs more variety — browse to the bottom of those.
+
+  # --- 4. Typography ---------------------------------------------------------
+  - id: typography
+    priority: 4
+    targets:
+      - { id: fontpair, url: "https://fontpair.co/", why: "Curated Google Fonts pairings, browsable by style." }
+      - { id: fontjoy, url: "https://www.fontjoy.com/", why: "ML-generated pairing suggestions with a regenerate button — fast breadth." }
+      - { id: typewolf, url: "https://www.typewolf.com/", why: "Real sites using notable typography, with the exact typefaces named." }
+      - { id: fontsinuse, url: "https://www.fontsinuse.com/", why: "Type used in real shipped design work (print + web), tagged and searchable." }
+      - { id: modernfontstacks, url: "https://modernfontstacks.com/", why: "System-font stacks that need zero web-font loading — legitimate option, not just a fallback." }
+      - { id: google-fonts, url: "https://fonts.google.com/", why: "The actual source when a pick needs to become a real font import." }
+    dropped:
+      - { url: "https://www.typescale.com/", reason: "526 (SSL/origin error) on probe 2026-08-19." }
+
+  # --- 5. Nav copy ------------------------------------------------------------
+  - id: nav-copy
+    priority: 5
+    targets:
+      - { id: navbar-gallery, url: "https://www.navbar.gallery/", why: "Dedicated navbar gallery — real header structures and label choices." }
+      - { id: unsection-navbar, url: "https://www.unsection.com/category/navbar-design", why: "Real shipped navbars, category-filtered (see meta_sources.unsection)." }
+      - { id: onepagelove-navigation, url: "https://onepagelove.com/section/navigation", why: "Real shipped nav sections (see meta_sources.onepagelove)." }
+      - { id: muffingroup-menu, url: "https://muffingroup.com/blog/website-menu-design/", why: "Roundup of real nav-menu examples across industries, with commentary on label choices." }
+      - { id: onething-nav-patterns, url: "https://www.onething.design/post/top-website-navigation-design-patterns", why: "Pattern-type breakdown (horizontal/vertical/mega/bottom) with real examples per type." }
+    dropped:
+      - { url: "https://www.uxpin.com/studio/blog/navigation-ui/", reason: "DNS/connect failure (curl 000) on probe 2026-08-19." }
+    note: >
+      Covers nav STRUCTURE and real label choices from shipped sites. Does not
+      cover copy TONE more broadly (footer link-set wording, CTA phrasing) —
+      that gap is only partly filled by the footer roundups above; revisit if
+      a future phase needs dedicated copy-tone sourcing.
+
+  # --- 6. Cards / products ----------------------------------------------------
+  - id: cards-products
+    priority: 6
+    targets:
+      - { id: unsection-feature, url: "https://www.unsection.com/category/feature-section-design", why: "Real shipped feature/card grids, category-filtered (see meta_sources.unsection)." }
+      - { id: wpdean-product-cards, url: "https://wpdean.com/product-card-design/", why: "41-example roundup specifically of ecommerce product cards." }
+      - { id: freefrontend-product-cards, url: "https://freefrontend.com/css-product-cards/", why: "Working code examples of product cards, not just screenshots." }
+      - { id: devsnap-product-cards, url: "https://devsnap.me/css-product-cards", why: "25+ product card examples with free code and live demos." }
+      - { id: mdbootstrap-product-cards, url: "https://mdbootstrap.com/docs/standard/extended/product-cards/", why: "Structural reference for review/rating/price layout conventions on a card." }
+
+  # --- 7. Process / steps ------------------------------------------------------
+  - id: process-steps
+    priority: 7
+    targets:
+      - { id: onepagelove-how-it-works, url: "https://onepagelove.com/section/how-it-works", why: "Real shipped how-it-works / process sections (see meta_sources.onepagelove)." }
+    note: >
+      Thin — only one dedicated source found and verified as of 2026-08-19.
+      "/section/process", "/steps", and "/features" on onepagelove all 404
+      (probed, do not reuse). No other dedicated process-section gallery
+      turned up in search. Fall back to the hero section's full-page
+      galleries and browse to the process section within a real page.
+
+  # --- 8. Stats ----------------------------------------------------------------
+  - id: stats
+    priority: 8
+    targets:
+      - { id: onepagelove-metrics, url: "https://onepagelove.com/section/metrics", why: "Real shipped stats/metrics sections (see meta_sources.onepagelove)." }
+    note: >
+      Thin — same situation as process-steps. unsection.com has no stats
+      category (probed 404). Fall back to hero full-page galleries for
+      more variety.
+
+  # --- 9. Testimonial -----------------------------------------------------
+  - id: testimonial
+    priority: 9
+    targets:
+      - { id: onepagelove-testimonials, url: "https://onepagelove.com/section/testimonials", why: "Real shipped testimonial sections (see meta_sources.onepagelove)." }
+      - { id: unsection-testimonial, url: "https://www.unsection.com/category/testimonial-section-design", why: "Real shipped testimonial sections, category-filtered (see meta_sources.unsection)." }
+      - { id: reallygooddesigns-testimonials, url: "https://reallygooddesigns.com/testimonial-page-examples/", why: "25-example roundup emphasizing storytelling layouts over plain quote blocks." }
+    dropped:
+      - { url: "https://saaspo.com/", reason: "403 bot-blocked on probe 2026-08-19 (also blocks the section-type subpage)." }
+
+  # --- 10. Contact ---------------------------------------------------------------
+  - id: contact
+    priority: 10
+    targets:
+      - { id: unsection-contact, url: "https://www.unsection.com/category/contact-section-design", why: "Real shipped contact sections, category-filtered (see meta_sources.unsection)." }
+    note: >
+      Thin — only one dedicated source found. Fall back to hero full-page
+      galleries for more variety.
+
+  # --- 11. Motion ----------------------------------------------------------
+  - id: motion
+    priority: 11
+    targets:
+      - { id: easings-net, url: "https://easings.net/", why: "Named, visualized easing curves — the actual curve-selection reference for animate/impeccable skills." }
+      - { id: cubic-bezier, url: "https://cubic-bezier.com/", why: "Interactive cubic-bezier curve editor with live preview." }
+      - { id: uimovement, url: "https://uimovement.com/", why: "UI micro-interaction gallery, tagged by interaction type (hover, transition, loading, etc.)." }
+      - { id: framer-motion-examples, url: "https://www.framer.com/motion/examples/", why: "Real working Motion (framer-motion) implementations, copy-pasteable." }
+      - { id: codrops, url: "https://tympanus.net/codrops/", why: "Already registered in sources.yaml design_refs — technique write-ups with source, often readable by WebFetch first." }
+    dropped:
+      - { url: "https://www.lottiefiles.com/", reason: "403 bot-blocked on probe 2026-08-19." }
+      - { url: "https://www.interfacesdb.com/", reason: "DNS/connect failure (curl 000) on probe 2026-08-19." }
+    note: >
+      See also E:/dev-recipes/website-animation-patterns/awwwards-refs/ — the
+      existing local motion-ref collection (sources.yaml design_refs), which
+      this section supplements rather than replaces.
+
+# ---------------------------------------------------------------------------
+# Coverage summary (2026-08-19) — for the design-pick skill session to
+# read before it decides which phases have real breadth vs. which are thin.
+# ---------------------------------------------------------------------------
+coverage_summary:
+  strong: [palette, hero, footer, typography, motion]        # 5-11 verified sources each
+  moderate: [nav-copy, cards-products, testimonial]           # 3-5 verified sources each
+  thin: [process-steps, stats, contact]                       # 1 dedicated source; fall back to hero galleries
+  total_urls_probed: 67                                       # excludes meta_sources category-slug sub-probes
+  total_urls_verified_live: 55
+
+# ---------------------------------------------------------------------------
+# Adding a section or a URL: probe it before you commit it.
+#   curl -s -o /dev/null -w "%{http_code} %{size_download}" -L <url>
+# A dead/blocked URL gets recorded under that section's dropped: list WITH
+# the reason and probe date, so the next run does not rediscover it.
+# ---------------------------------------------------------------------------
