@@ -5,25 +5,50 @@
 # This file answers "where does the USER go to pick a real design, so nothing
 # gets generated from model memory?"
 #
-# Built per PLAN.md (wholesale-rice-mock project, 2026-08-19) Step 1. Origin
-# diagnosis: a rice-mock build invented a gold/mustard palette, nav copy, and
-# footer links from training-data averages because no source existed to
-# retrieve from. This registry is that source. It is GENERIC — not scoped to
-# any one project or client type. The design-pick skill (Step 2, separate
-# session) reads this file to build a Phase N option list; the user browses
-# the links themselves and picks; Claude never renders, screenshots, scores,
-# or recommends.
+# Origin: a build invented a palette, nav copy, and footer links from
+# training-data averages because no source existed to retrieve from. This
+# registry is that source. Full post-mortem, with the project and the actual
+# values involved, is in LESSONS.md — this file stays GENERIC, scoped to no
+# project or client type. The design-pick skill reads it to build a Phase N
+# option list; the user browses the links and picks; Claude never renders,
+# screenshots, scores, or recommends.
 #
 # Hard rule this file exists to enforce:
 #   Never write a URL into this file from memory without probing it first.
-#   A dead or bot-blocked source gets recorded as such (see "dropped" notes
-#   per section) so the next run does not rediscover the same dead end.
+#   A dead or bot-blocked source gets recorded under that section's dropped:
+#   list so the next run does not rediscover the same dead end.
 #
 # Probe convention (same as sources.yaml / design-sources.yaml):
 #   curl -s -o /dev/null -w "%{http_code} %{size_download}" -L <url>
 
 version: 1
-updated: 2026-08-19
+updated: 2026-08-20
+
+# ---------------------------------------------------------------------------
+# Vocabularies. Defined once here so a later edit cannot invent a fourth way
+# of saying "this source is awkward".
+# ---------------------------------------------------------------------------
+conventions:
+  # dropped vs known_issues — the distinction this registry lacked. A source
+  # is one or the other, never both.
+  dropped: "Never use. Dead, blocked, or wrong. Carries url + reason + probe date."
+  known_issues: "Usable, with a documented failure mode. Carries mode + date + workaround."
+
+  # How to open a gallery-type source. Established the hard way: browsing the
+  # live site first produced impressions; opening the gallery's own detail page
+  # first produced structural facts that a fit-check can actually compare.
+  # This was the single change that made the nav phase yield usable data.
+  fetch_order:
+    detail-page-first: "Open the gallery's own detail/case page first — it carries the structured description. Visit the live site second, as supplement."
+    live-site-only: "No detail page exists; the live site is the only artifact."
+
+  # Whether a source can be read by a tool at all, or only by a human eye.
+  # No source is tagged inspiration-only yet. The vocabulary exists so a
+  # blocked-but-useful source cannot be added later without declaring which
+  # kind it is.
+  retrieval:
+    fetchable: "WebFetch/curl returns usable content."
+    inspiration-only: "Human-browsable only — bot-blocked or JS-gated. Never present as fetched."
 
 # ---------------------------------------------------------------------------
 # Meta-sources — multi-category galleries. Several sections below point back
@@ -42,6 +67,7 @@ meta_sources:
       team-section-design, portfolio-section-design, blog-section-design,
       blog-header-section-design, logo-section-design.
     category_url_pattern: "https://www.unsection.com/category/{slug}"
+    fetch_order: detail-page-first
     verified: 2026-08-19
     verified_note: Homepage 200 (97.8 KB); all 14 category slugs above probed 200.
 
@@ -52,6 +78,7 @@ meta_sources:
       Confirmed slugs (probed, not guessed): testimonials, metrics,
       how-it-works, pricing, navigation.
     section_url_pattern: "https://onepagelove.com/section/{type}"
+    fetch_order: detail-page-first
     verified: 2026-08-19
     verified_note: >
       Base 200 (72.0 KB). /section/testimonials 200, /section/metrics 200,
@@ -85,6 +112,7 @@ sections:
   # --- 2. Hero — second priority per PLAN.md section 9 -----------------------
   - id: hero
     priority: 2
+    fetch_order: detail-page-first
     targets:
       - { id: awwwards, url: "https://www.awwwards.com/websites/", why: "Award-curated, high production value. JS-heavy — Firecrawl may be needed for deep browse (see sources.yaml tier 4)." }
       - { id: godly, url: "https://godly.website/", why: "Design reference gallery, filterable by style tag." }
@@ -101,10 +129,13 @@ sections:
       - { url: "https://www.lapa.ninja/", reason: "403 bot-blocked on probe 2026-08-19." }
       - { url: "https://www.siteinspire.com/", reason: "429 rate-limited on probe 2026-08-19." }
       - { url: "https://www.hero-patterns.com/", reason: "DNS/connect failure (curl 000) on probe 2026-08-19 — domain likely dead. Recalled from memory rather than discovered, did not resolve on probe. Recorded so it is not retried." }
+    known_issues:
+      - { id: awwwards, mode: "JS-heavy; deep browse past the first page returns little via WebFetch/curl.", date: 2026-08-19, workaround: "Fetch the site's own detail page for a specific entry rather than paginating the index. Firecrawl (sources.yaml tier 4) only if that fails — it is rationed." }
 
   # --- 3. Footer — third priority per PLAN.md section 9. Dedicated gallery. -
   - id: footer
     priority: 3
+    fetch_order: detail-page-first
     targets:
       - { id: footer-design, url: "https://footer.design/", why: "Dedicated footer-only gallery, curated by NOOON Studio. The single best-fit source." }
       - { id: unsection-footer, url: "https://www.unsection.com/category/footer-section-design", why: "Real shipped footers, category-filtered (see meta_sources.unsection)." }
@@ -139,6 +170,7 @@ sections:
   # --- 5. Nav copy ------------------------------------------------------------
   - id: nav-copy
     priority: 5
+    fetch_order: detail-page-first
     targets:
       - { id: navbar-gallery, url: "https://www.navbar.gallery/", why: "Dedicated navbar gallery — real header structures and label choices." }
       - { id: unsection-navbar, url: "https://www.unsection.com/category/navbar-design", why: "Real shipped navbars, category-filtered (see meta_sources.unsection)." }
@@ -188,6 +220,7 @@ sections:
   # --- 9. Testimonial -----------------------------------------------------
   - id: testimonial
     priority: 9
+    fetch_order: detail-page-first
     targets:
       - { id: onepagelove-testimonials, url: "https://onepagelove.com/section/testimonials", why: "Real shipped testimonial sections (see meta_sources.onepagelove)." }
       - { id: unsection-testimonial, url: "https://www.unsection.com/category/testimonial-section-design", why: "Real shipped testimonial sections, category-filtered (see meta_sources.unsection)." }
