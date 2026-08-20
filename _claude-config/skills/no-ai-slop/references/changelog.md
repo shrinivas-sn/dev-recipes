@@ -68,3 +68,15 @@ User clarified: don't want accessibility given default equal weight in the "kill
 process. Kept Category 8 scored (still reported for awareness) but it no longer blocks the
 Step 4 go-ahead the way Categories 1-7 do — a Fail there doesn't require action or wait for
 approval unless the user explicitly asks to prioritize accessibility on that project.
+
+## 2026-08-18 — Added padding/whitespace tell to Category 1, plus a fast path
+
+User (across several sessions, most recently `portfolio-site-new`) kept hitting bloated
+vertical padding/margin on sections — values like `pt-16 md:pt-20 pb-24 md:pb-32` on a Hero,
+`mt-12 pt-8` before a proof strip — with no content reason for the size. Considered a
+standalone padding-only skill first, rejected it as too narrow (see conversation); folded into
+this skill instead. Added the tell to Category 1 (compare against the same spacing token used
+on sibling sections — consistent sitewide use is a system, not slop; an outlier is). Also added
+a "Fast path" section to `SKILL.md` so a narrow "remove the padding on X" request doesn't
+trigger the full Step 1-4 audit-and-report pipeline — it's disproportionate for a single
+spacing tweak. Not yet field-tested against a real false-positive case.

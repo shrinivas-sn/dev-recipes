@@ -1,16 +1,24 @@
 ---
-description: Check whether this session's work is worth saving, and where
+description: Quickly draft the docs/status update for this session's work, keeping STATUS.md capped
 ---
-Review this session (whatever's been done so far) and decide:
+Quick pass. No full transcript re-scan — work from what's already in context.
 
-1. Is there anything worth saving — a reusable pattern/recipe, research, a non-obvious decision, or just noise?
-2. Repeated-correction check: scan this session for any point where I had to be corrected on the same category of mistake more than once, or where you called out repeated/sloppy behavior (e.g. "why do you keep doing X", "don't make me say this twice", "I will not say this again"). If found, check whether it's already captured as a `feedback` memory. If not, propose one using the existing feedback-memory format (rule, **Why:**, **How to apply:**) — don't propose a new skill, command, or automation for this; the feedback memory type exists specifically so a correction doesn't need to be repeated.
-3. If worth saving, classify where it belongs:
-   - **Reusable across projects** (a pattern/feature others could copy-in later) → `E:\dev-recipes` as a new/updated recipe folder (README + templates), matching the existing style in that repo
-   - **Specific to this project but worth keeping** → a `.md` file in this project, or Claude memory for short facts/decisions
-   - **Nothing worth saving** → say so in one line and stop
-4. Separately, check whether *this project* already tracks its own docs/plans somewhere (a `docs/`/`DOCS/` folder, `ARCHITECTURE.md`, `CHANGELOG.md`, a project-context file, etc.) — go by what actually already exists in this repo, never assume a structure or invent a new one. If such a convention exists, check whether it's now stale relative to this session's work: a feature/fix just implemented that isn't reflected, a "planned"/"future" doc that's now done, or an architecture/context doc describing something that changed. If the project has no such convention, skip this step — don't propose creating one.
-5. Check whether this session surfaced a reusable technique, workflow, or non-obvious fix not covered by any existing skill or command — check `~/.claude/skills/`, `~/.claude/commands/`, and the available-skills listing. Flag as a **new skill candidate** (nothing close exists) or an **update to an existing skill** (something's close but missing this case). Skip if nothing rises above one-off/project-specific.
-6. Continuity check: make sure the *next* session opened in this project folder can be told "quick recap" or "check project for context" and understand where things stand. If step 4 found an existing convention, rely on that (flag staleness per step 4). If there's no existing convention AND nothing else this session already captured current state (no memory write, no recipe, no project doc), propose a minimal continuity note — a short `.claude-context.md` in the project root, or a project-memory entry for short-lived work — covering: what was done, current state, next step. Skip if this session's work is trivial/noise per step 1.
-7. Give your recommendation in 3-5 lines max: what, where, why — cover save-worthiness (1), repeated-correction finding (2), doc-freshness gap (4), skill gap (5), and the continuity note (6) if applicable.
-8. Wait for my go-ahead before writing anything — do not save automatically.
+1. Locate the status file.
+   - `DOCS/README.md` starts with `<!-- docs-structure: v1 -->` → target is `DOCS/STATUS.md`.
+     Never read `DOCS/CONTEXT/`, `DOCS/RESEARCH/`, `DOCS/EXTRA/`, or old `DOCS/WORK/<date>/`
+     files — historical record, not re-scanned each session.
+   - Otherwise, use whatever status file already exists (STATUS.md, PROJECT-STATUS.md).
+   - No status file + nothing worth capturing → say so, skip.
+
+2. Cap it at 40 lines, current + next only.
+   - STATUS.md holds only: what's current, what's next. Not a running log.
+   - Before adding this session's update, check line count.
+   - If it's already over 40 lines, or has entries that are done/resolved/superseded:
+     move those lines out verbatim, append to `DOCS/WORK/archive.md` under a
+     `## <today's date>` heading, then delete them from STATUS.md.
+   - Write the new current/next update into STATUS.md after trimming.
+
+3. End with "Next up (start here)" — numbered, specific.
+
+Draft both edits (STATUS.md + archive.md, if trimming) inline and wait for
+go-ahead before writing anything.
