@@ -1,5 +1,7 @@
-# <YYYY-MM-DD> — <short slug/title>
+# <DD/MM/YYYY> — <short slug/title>
 
+<!-- Title date is DD/MM/YYYY (display). The folder name this file lives in stays
+YYYY-MM-DD for correct sorting — don't rename the folder to match the title. -->
 <!-- Add a matching row to DOCS/README.md the same session this file is created. -->
 
 ## Plan

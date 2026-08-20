@@ -41,12 +41,14 @@ Reading only "the latest" dated file is lossy — an older day's work can still
 constrain or explain what you're doing now. The fix is not "read everything," it's
 "know what's relevant without opening it."
 
-`DOCS/README.md` is a table, one row per WORK day-folder:
+`DOCS/README.md` is a table, one row per WORK day-folder. Dates in the table are
+**DD/MM/YYYY** (display only — user is India-based); the `WORK/<date>/` folder name
+itself stays YYYY-MM-DD so it still sorts correctly on disk and in `git log`:
 
 | Date | Summary | Status | Load-bearing | Touches | Continues |
 |---|---|---|---|---|---|
-| 2026-06-12 | Reworked reminder cron reliability | done | yes | `src/routes/api/cron`, `.github/workflows` | — |
-| 2026-06-14 | Added daily digest push | done | yes | `src/routes/api/cron` | 2026-06-12 |
+| 12/06/2026 | Reworked reminder cron reliability | done | yes | `src/routes/api/cron`, `.github/workflows` | — |
+| 14/06/2026 | Added daily digest push | done | yes | `src/routes/api/cron` | 12/06/2026 |
 
 - **Status**: `active` \| `done` \| `superseded` \| `abandoned`
 - **Load-bearing**: still constrains current architecture/behavior — worth opening
