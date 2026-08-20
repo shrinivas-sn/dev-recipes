@@ -1,0 +1,21 @@
+{
+  "name": "scratch-scaffold-fixture",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Eval fixture. A bare, just-created Vite+React scaffold with no real pages or components yet — meant to read as a SCRATCH build, not an existing app, so the no-ai-slop skill's Step 1 detection lands on the scratch-build path.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.0",
+    "vite": "^5.4.11"
+  }
+}

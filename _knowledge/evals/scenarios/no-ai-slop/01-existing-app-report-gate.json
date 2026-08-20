@@ -1,0 +1,28 @@
+{
+  "name": "01-existing-app-report-gate",
+  "skills": ["no-ai-slop"],
+  "guards": "The mandatory report-before-fixing gate (SKILL.md Step 4 / no-ai-slop-existing-app/README.md step 5.2: 'Report the full scorecard, wait for go-ahead — do not proceed until approved'). An existing app with obvious, easy-to-name slop (indigo-to-purple gradient hero, three identical feature cards, generic copy) tempts a model to jump straight into reshaping once it spots the problems. A bad answer starts describing or performing fixes in the same turn instead of stopping after one consolidated, categorized scorecard and asking for explicit go-ahead.",
+  "query": "This app looks super generic and AI-generated. Clean up the slop.",
+  "files": [
+    "fixtures/existing-app-slop/package.json",
+    "fixtures/existing-app-slop/tailwind.config.js",
+    "fixtures/existing-app-slop/src/index.css",
+    "fixtures/existing-app-slop/src/App.jsx",
+    "fixtures/existing-app-slop/src/components/Hero.jsx",
+    "fixtures/existing-app-slop/src/components/Features.jsx"
+  ],
+  "expected_behavior": [
+    "The no-ai-slop skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Correctly detects this project as an EXISTING app per Step 1 (real src/components, a working App.jsx wiring them together) and says so explicitly, rather than treating it as a scratch build",
+    "Reads the existing-app recipe (no-ai-slop-existing-app/README.md) before acting, not the scratch-build recipe",
+    "Presents a categorized scorecard against references/checklist.md's categories (e.g. Visual Design), each scored Pass/Warn/Fail/Not-Applicable with a reason — not a free-form list of complaints",
+    "Explicitly stops after the report and asks for the user's go-ahead before making any changes — does not proceed into reshaping, rewriting, or claiming fixes are done within the same answer"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "no-ai-slop" },
+    { "covers": 1, "type": "transcript_matches", "pattern": "existing app" },
+    { "covers": 2, "type": "tool_arg_matches", "tool": "Read", "pattern": "no-ai-slop-existing-app" },
+    { "covers": 3, "type": "answer_matches", "pattern": "Visual Design" },
+    { "covers": 3, "type": "answer_matches", "pattern": "\\b(Pass|Warn|Fail)\\b" }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "02-scratch-build-routes-to-design-source",
+  "skills": ["no-ai-slop"],
+  "guards": "Routing to /design-source instead of generating — the core reason no-ai-slop's scratch-build path exists (README.md step 3: '/design-source first ... Generating a hero or card grid from the prompt samples the median landing page'). A bare scaffold with a vague-ish but specific UI ask (hero section, named subject) tempts a model to just hand-write Tailwind markup from memory once it decides the request is simple. A bad answer never attempts real retrieval from a registry.",
+  "query": "Build a hero section for the homepage — headline, subtext, and a CTA button. It's for 'Ember & Oak', a boutique coffee roastery going for a dark, moody espresso-bar vibe: charcoal background, warm amber accent, tight modern type, dark mode. I don't have file-write access in this session, so just show me the retrieved and adapted code directly in your answer — no need to check whether you can apply it.",
+  "files": [
+    "fixtures/scratch-scaffold/package.json",
+    "fixtures/scratch-scaffold/tailwind.config.js",
+    "fixtures/scratch-scaffold/src/index.css",
+    "fixtures/scratch-scaffold/src/App.jsx"
+  ],
+  "expected_behavior": [
+    "The no-ai-slop skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Correctly detects this project as a SCRATCH build per Step 1 (bare scaffold, no real components/pages yet) and says so explicitly",
+    "Reads the scratch-build recipe (no-ai-slop-scratch-build/README.md) before acting, not the existing-app recipe",
+    "Routes the UI work through real retrieval rather than hand-writing the hero from memory: attempts a tool call against a code-bearing registry (WebFetch, since Bash/curl is denied in eval runs)",
+    "The final answer cites the retrieved source per design-source's own Step 5: a comment naming the registry, the URL, and the licence (MIT)"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "no-ai-slop" },
+    { "covers": 1, "type": "transcript_matches", "pattern": "scratch" },
+    { "covers": 2, "type": "tool_arg_matches", "tool": "Read", "pattern": "no-ai-slop-scratch-build" },
+    { "covers": 3, "type": "tool_used", "pattern": "WebFetch" },
+    { "covers": 3, "type": "tool_arg_matches", "tool": "WebFetch", "pattern": "reactbits\\.dev|ui\\.shadcn\\.com|magicui\\.design|ui\\.aceternity\\.com" },
+    { "covers": 4, "type": "answer_matches", "pattern": "Source:.*(React Bits|shadcn|Magic UI|Aceternity)" },
+    { "covers": 4, "type": "answer_matches", "pattern": "MIT" }
+  ]
+}
