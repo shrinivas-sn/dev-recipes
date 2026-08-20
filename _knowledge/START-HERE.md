@@ -66,7 +66,7 @@ _claude-config/                  backup mirror of hand-written skills/commands/a
 - **Layer 1 (library truth):** built, proven on `E:\calendar-api`.
 - **Layer 1b (design):** built, proven — 4 live registries; adaptation contract caught a real accessibility gap first run.
 - **Layer 2 (the ruler):** `_standard/README.md`. 7 custom skills audited, 2 gaps, both deliberately deferred (Windows-style paths; 0 evals = Layer 4 work).
-- **Layer 4 (evals):** `evals/` — runner + 8 scenarios across 3 skills (`context-brief` 3, `design-source` 3, `no-ai-slop` 2). `scenarios/api-idea-scout/` exists but is empty. Design, traps, how to add a scenario: `evals/README.md`. Counted 2026-08-20 — recount before quoting this, it has been wrong before.
+- **Layer 4 (evals):** `evals/` — runner + 9 scenarios across 4 skills (`context-brief` 3, `design-pick` 1, `design-source` 3, `no-ai-slop` 2). `scenarios/api-idea-scout/` exists but is empty. Design, traps, how to add a scenario: `evals/README.md`. Counted 2026-08-20 — recount before quoting this, it has been wrong before.
 - **Layer 3:** `_core/` is an empty dir; `recipes/` beyond the no-ai-slop pair doesn't exist. Not started, needs scoping before any work.
 - **Backed up:** all of the above is committed and pushed to `github.com/shrinivas-sn/dev-recipes`. Hand-written config mirrors separately via `sync.js` — run `node sync.js --check` after editing any skill. Counts drift; read the script's tracked list rather than trusting a number here.
 - **Unproven:** Firecrawl tier 4 (never warranted yet).
