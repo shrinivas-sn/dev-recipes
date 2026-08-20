@@ -25,6 +25,7 @@ Both auto-trigger on matching work. Invoke by name to force them.
 ```
 _knowledge/START-HERE.md         this file
 _knowledge/LESSONS.md            post-mortems and hard-won corrections, read on demand
+_knowledge/SELF-MONITOR.md       gate failures queued for a skill edit — Unreviewed -> Promoted
 _knowledge/sources.yaml          library/API sources + cost ladder     -> /context-brief
 _knowledge/design-sources.yaml   UI registries + adaptation contract   -> /design-source
 _knowledge/slop-signatures.md    greppable AI-slop patterns, with fixes
@@ -58,13 +59,14 @@ _claude-config/                  backup mirror of hand-written skills/commands/a
 - Retrieval ≠ taste. Zero slop signatures is a floor, not a ceiling.
 - Record failures (404s, 429s) with dates, so the next run doesn't re-discover them.
 - Never trust a status line — verify it. `LESSONS.md` records three times this file was wrong.
+- When a gate was missing or fired wrong, write it to `SELF-MONITOR.md` **in the session you noticed** — under `## Unreviewed`, no approval needed. Not for 404s or friction; only for a gate. A lesson nobody routes to an edit is a lesson nobody learns.
 
 ## Status
 
 - **Layer 1 (library truth):** built, proven on `E:\calendar-api`.
 - **Layer 1b (design):** built, proven — 4 live registries; adaptation contract caught a real accessibility gap first run.
 - **Layer 2 (the ruler):** `_standard/README.md`. 7 custom skills audited, 2 gaps, both deliberately deferred (Windows-style paths; 0 evals = Layer 4 work).
-- **Layer 4 (evals):** `evals/` — runner + 3 `context-brief` scenarios, all passing. Coverage is 1 of 7 skills. Design, traps, how to add a scenario: `evals/README.md`.
+- **Layer 4 (evals):** `evals/` — runner + 8 scenarios across 3 skills (`context-brief` 3, `design-source` 3, `no-ai-slop` 2). `scenarios/api-idea-scout/` exists but is empty. Design, traps, how to add a scenario: `evals/README.md`. Counted 2026-08-20 — recount before quoting this, it has been wrong before.
 - **Layer 3:** `_core/` is an empty dir; `recipes/` beyond the no-ai-slop pair doesn't exist. Not started, needs scoping before any work.
 - **Backed up:** all of the above is committed and pushed to `github.com/shrinivas-sn/dev-recipes`. Hand-written config (7 skills, 10 commands, 5 subagents) mirrors separately via `sync.js`.
 - **Unproven:** Firecrawl tier 4 (never warranted yet).
