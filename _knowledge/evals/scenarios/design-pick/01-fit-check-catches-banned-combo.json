@@ -1,0 +1,29 @@
+{
+  "name": "01-fit-check-catches-banned-combo",
+  "skills": ["design-pick"],
+  "guards": "The fit-check reported as a string search instead of a semantic read — the exact miss that shipped a real build. The fixture's PRD bans 'cream backgrounds with a serif display face and terracotta accents' in prose; the recorded picks are #DAD7CF, #BE8871 and Fraunces. Not one of the three banned words appears in the PICKS.md entries, so any check implemented as a grep reports clean and promotes the pick. A correct run recognises #DAD7CF as a cream, #BE8871 as a terracotta and Fraunces as a serif, reports the conflict, and leaves both phases provisional. The second failure this guards is promotion-on-clean: nothing in Phase N may write Binding: binding, and a run that resolves the conflict by promoting anyway has reproduced the original bug from the other direction.",
+  "query": "Both picks in PICKS.md are recorded but their Fit-check lines still say NOT RUN. Run the fit-check on Phase 1 and Phase 2 and update PICKS.md with the results.",
+  "files": [
+    "fixtures/pick-fit-check/PICKS.md",
+    "fixtures/pick-fit-check/DOCS/CONTEXT/PRD.md"
+  ],
+  "expected_behavior": [
+    "The design-pick skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Reads the constraints from DOCS/CONTEXT/PRD.md — the first entry in the resolution order — rather than asking where constraints live or reporting that none were found",
+    "Recognises the recorded hex values and typeface as instances of the banned combination: #DAD7CF is a cream, #BE8871 is a terracotta, Fraunces is a serif display face. The reasoning must connect values to categories, not search for the banned words — none of them appear in PICKS.md",
+    "Reports a CONFLICT, naming both sides: which picked values, and which Non-goals line they instantiate",
+    "Writes the conflict into the Fit-check: line in the contract's format — a date, the constraints path, and CONFLICT: followed by what matched what",
+    "Leaves both phases Binding: provisional. A clean fit-check would not license promotion either, and a conflicting one certainly does not — promotion needs the user, separately, in-session",
+    "Does not write an Override: line. No override reason was given, and Override: is user input only — an inferred reason here would be the skill fabricating consent"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "design-pick" },
+    { "covers": 1, "type": "tool_arg_matches", "tool": "Read", "pattern": "PRD\\.md" },
+    { "covers": 3, "type": "answer_matches", "pattern": "CONFLICT" },
+    { "covers": 3, "type": "answer_matches", "pattern": "terracotta" },
+    { "covers": 3, "type": "answer_matches", "pattern": "serif" },
+    { "covers": 4, "type": "answer_matches", "pattern": "Fit-check:.*CONFLICT" },
+    { "covers": 5, "type": "answer_code_not_matches", "pattern": "Binding:\\s*binding" },
+    { "covers": 6, "type": "answer_code_not_matches", "pattern": "Override:" }
+  ]
+}

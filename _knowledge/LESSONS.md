@@ -76,3 +76,37 @@ of it. The plain-language version (in `_knowledge/evals/README.md`, "What this i
 language") is the one that worked. Lead with that whenever explaining this system to a human
 who isn't already fluent in eval terminology. An explanation the user cannot act on is not an
 explanation — this system's whole value is that a human can trust and check it.
+
+## Provenance is not fit — a real source can still break the brief
+
+A site build (`E:\CLAUDE-CODE-TERMINAL\wholesale-rice-mock`) used the anti-slop pipeline end to
+end — `design-pick` for the choices, `design-source` for the code — and still shipped the exact
+combination its own constraints document banned. The constraints doc named
+"cream + serif + terracotta" as one of three AI-slop defaults to avoid. The recorded picks were a
+cream/terracotta palette (`#DAD7CF`, `#BE8871`) plus Fraunces, a serif display face. They were
+chosen in seconds, described by the builder at the time as "for testing", and never compared to
+the constraints.
+
+Nothing caught it, and nothing *could* have. `design-pick` verified **provenance** — that each
+option came from a fetch performed that session — and every option had. It had no concept of
+**fit**. Meanwhile `design-source`'s precedence rule made `PICKED:` entries binding, so a
+ten-second exploratory pick automatically outranked the document that banned it. A human reading
+the two files side by side was the only detector in the system.
+
+Three separate lessons, none of which is "add more rules":
+
+- **Provenance and fit are independent properties.** A real fetched source that violates the brief
+  is still wrong, and no amount of provenance checking will surface it. Both need their own gate.
+- **A fit-check that greps is worse than no fit-check.** No string search connects `#DAD7CF` to the
+  word "cream". A check that only catches literal repeats reports clean on precisely the case it
+  exists to catch, and manufactures confidence while doing it. The comparison has to happen at the
+  level of what the values *are* — a cream, a terracotta, a serif.
+- **"For testing" is not a state the file can represent.** The fix is not asking the person in a
+  hurry to flag their hasty pick; that is the failure mode, not a remedy for it. Every pick is now
+  written `provisional`, and promotion to `binding` is a separate deliberate action.
+
+Fixed 2026-08-20 by the `provisional` / `Fit-check:` contract in `design-pick` and the three-row
+precedence table in `design-source`. Earlier, related post-mortem from the same project: the
+original build **invented** a gold/mustard palette and nav copy from training-data averages
+because no source existed to retrieve from — which is why `design-pick` and
+`design-picks.yaml` exist at all.

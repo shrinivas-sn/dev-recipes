@@ -17,6 +17,20 @@ this one handles **what the UI should actually be**.
 Registry of code-bearing sources: `E:\dev-recipes\_knowledge\design-sources.yaml`
 Detectable slop patterns: `E:\dev-recipes\_knowledge\slop-signatures.md`
 
+**If `PICKS.md` exists in the project root** (written by the `design-pick`
+skill), read each phase's `Binding:` field before using its `PICKED:` values:
+
+| `Binding:` value | Behavior |
+|---|---|
+| `binding` | Authoritative for that section. Use those values, don't re-decide them here. |
+| `provisional` | **Stop. Do not build that section.** The pick hasn't been confirmed and may not have been fit-checked. Name every phase still awaiting confirmation, in one message, and wait. |
+| field absent | Treat as `binding`, and warn **once** that this `PICKS.md` predates the provisional contract. Backward compatibility — do not repeat the warning per section. |
+
+Only fall back to this skill's own judgment for sections `PICKS.md` doesn't
+cover at all. A `provisional` entry is not an uncovered section — it is a
+covered section that isn't ready, and building it anyway is the failure the
+field exists to prevent.
+
 ## Why generation fails here
 
 A model asked for "a hero section" samples the highest-probability tokens for that phrase —

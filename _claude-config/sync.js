@@ -26,11 +26,20 @@ const REPO = __dirname;
  * `tracked: '*'` mirrors everything in the directory. An explicit list mirrors only those
  * entries, and is used where the live directory also holds things we deliberately skip.
  *
- * ~/.claude/skills has 17 entries but only the 7 below are hand-written. Nine are symlinks
- * to ~/.agents/skills (the `npx skills@latest` pack) and `impeccable` is a vendor install
- * with its own installer — all reinstallable, so mirroring them would duplicate recoverable
- * content and bury the 7 that actually matter. commands/ and agents/ hold no symlinks and
- * nothing vendor-installed, so they mirror wholesale.
+ * ~/.claude/skills holds both hand-written skills and installed ones. Only the 9 below are
+ * hand-written. The rest are symlinks to ~/.agents/skills (the `npx skills@latest` pack) and
+ * `impeccable`, a vendor install with its own installer — all reinstallable, so mirroring them
+ * would duplicate recoverable content and bury the ones that actually matter.
+ *
+ * `design-pick` was absent from this list until 2026-08-20 and had no backup at all. The
+ * refuse-on-missing guard below could not catch that: it only checks names already in the
+ * list, so a skill never registered is invisible to it. When you hand-write a new skill, add
+ * it here in the same session — see _knowledge/SELF-MONITOR.md for the full entry.
+ *
+ * commands/ and agents/ hold no symlinks and nothing vendor-installed, so they mirror
+ * wholesale. That has a sharp edge: with no name list there is nothing to refuse on, so a
+ * deletion in the live directory propagates to the backup on the next sync. Read the --check
+ * output before running a real sync.
  */
 const GROUPS = [
   {
@@ -39,9 +48,11 @@ const GROUPS = [
       'animation-ref',
       'api-idea-scout',
       'context-brief',
+      'design-pick',
       'design-source',
       'no-ai-slop',
       'no-ai-slop-writing',
+      'prd-intake',
       'production-readiness',
     ],
   },

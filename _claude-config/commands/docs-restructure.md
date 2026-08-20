@@ -23,6 +23,12 @@ This is a one-time reorganization. Never delete data by default.
      day, inferring `Summary` from the file, defaulting `Status` to `done` and
      `Load-bearing` to `yes` unless the content clearly says otherwise — flag these as
      defaults you're not fully sure of so the user can correct them.
+   - **Date format:** all human-facing dates you write (README.md table rows, WORK.md
+     title lines) are **DD/MM/YYYY** — the user is India-based. `WORK/<date>/` folder
+     names stay YYYY-MM-DD regardless (needed for correct sort order on disk and in
+     `git log`) — never rename the folder to match the display format. Never rewrite
+     dates inside verbatim-preserved historical content (old plan/execution bodies) —
+     this rule only applies to new material you're generating.
 3. **Flag anything you think is safe to remove** (exact duplicate content, empty
    template stubs, dead placeholder text) as a separate list — proposed, not done.
    Default to keeping everything; only list something for removal if you're

@@ -1,7 +1,25 @@
 ---
 name: no-ai-slop
-description: Use when the user asks to build a new app/website, or to clean up, redesign, "kill the AI slop" from, or de-genericize an already-built app/website. Detects whether the current project is a fresh scratch build or an existing app and follows the matching workflow.
+description: Use when the user asks to build a new app/website, to clean up, redesign, "kill the AI slop" from, or de-genericize an already-built app/website, or specifically to remove/reduce/trim excessive or bloated padding, margin, gap, or whitespace on a page or section. Detects whether the current project is a fresh scratch build or an existing app and follows the matching workflow.
 ---
+
+## Fast path — padding/spacing-only requests
+
+If the ask is narrowly about padding/margin/gap/whitespace on a specific section (e.g. "remove
+the padding," "this gap feels bloated") rather than a general cleanup/redesign, skip Steps 1-4
+below — the full audit-then-report pipeline is overkill for a single spacing tweak. Instead:
+
+1. **Ask which section/page** if not already named — never guess the target.
+2. **Read the actual current values** for that section (the real Tailwind classes/computed
+   px, not a remembered or guessed number).
+3. **Compare against the same spacing token used elsewhere in the codebase** (grep for the
+   same utility, e.g. `px-6`, across other sections/components) — spacing that matches an
+   established sitewide pattern is a deliberate system, not slop; only flag it if it's
+   genuinely inconsistent or unusually large next to its own siblings.
+4. **State the actual numbers and a one-line verdict** (bloated vs. consistent-with-sitewide)
+   before touching anything — this is the Category 1 tell below, applied to one section instead
+   of a full-page audit.
+5. Apply the trim only once the user confirms or has already told you to proceed.
 
 ## Step 1 — Detect scratch vs existing
 

@@ -53,6 +53,12 @@ Named tells to check for:
   (cream+serif+terracotta / near-black+neon accent / newspaper hairline-rules), used without
   the brief calling for it
 - Numbered 01/02/03 markers used decoratively where the content isn't actually a sequence
+- Large vertical padding/margin (`py-`/`pt-`/`pb-`/`mt-`/`mb-`, or gap) on a section that's
+  bigger than the same token used on sibling sections with no content reason for the
+  difference — generic "give it room to breathe" spacing rather than a considered value.
+  Compare against the codebase's own repeated spacing pattern before flagging: a value used
+  consistently everywhere is a system, not a tell; a single section running notably larger
+  than its siblings for no content reason is.
 
 - **Pass**: palette/type/layout are traceable to a specific decision about this subject; if a
   default look is used, the brief asked for it.
