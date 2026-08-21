@@ -20,5 +20,6 @@ Quick pass. No full transcript re-scan — work from what's already in context.
 
 3. End with "Next up (start here)" — numbered, specific.
 
-Draft both edits (STATUS.md + archive.md, if trimming) inline and wait for
-go-ahead before writing anything.
+Write both edits (STATUS.md + archive.md, if trimming) directly — no go-ahead
+needed. Then report: what changed, and that the session is safe to clear now
+(next session picks up from STATUS.md with no lost context).

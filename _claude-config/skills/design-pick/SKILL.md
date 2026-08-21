@@ -11,11 +11,15 @@ real, **and that it fits what the project said it had to be.**
 
 **Two rules. Both apply to every pick, every time.**
 
-> **Provenance.** Options shown to the user MUST come from a fetch performed in
-> *this* session. Assembling an options list from memory is the exact failure
-> this skill exists to prevent. If a fetch fails, say so and stop — never
-> substitute recalled examples, never fill a gap with "well-known" sites you
-> didn't just check.
+> **Provenance.** Options shown to the user MUST trace to something real —
+> never invented from memory. Default: hand over the registry's own
+> pre-verified links (curl-probed and dated) for the user to browse
+> themselves — that probe record *is* the provenance, no re-fetch needed to
+> show the list. The "fetched this session" bar only applies when Claude
+> itself must extract options on the user's behalf, because a source is
+> broken or JS-gated (see Phase N fallback) — those substitute picks must
+> come from a fetch performed in *this* session. Never fill a gap with
+> "well-known" sites that were neither in the registry nor just fetched.
 
 > **Fit.** A pick that came from a real fetched source can still violate the
 > project's own stated constraints, and provenance checking cannot see it.
@@ -74,23 +78,38 @@ found.** A missing check and a passed check must not look the same downstream.
 
 ## Phase N — one per design-heavy section
 
-1. Look up the section in `design-picks.yaml`. Fetch **2-4** of its listed
-   sources live (WebFetch/curl) — don't just paste the registry's `why:`
-   text, actually open them this session. Present **3-5 concrete options**
-   pulled from what you actually opened, not the full registry list.
+**Default path — hand over the sources, don't pre-pick from them:**
+
+1. Look up the section in `design-picks.yaml`. Present its **full listed
+   source set** as the option list — name, URL, the registry's own `why:`
+   line, verbatim. **Render each entry as a clickable markdown link
+   `[name](url)`** — not a bare/plain-text URL — so the user can click
+   straight through. Don't open the links yourself first, don't narrow to a
+   subset, don't rank. The user browses and looks, not you.
 2. If the section is `moderate` or `thin` in `coverage_summary`, say so before
-   presenting options — don't silently present options as if 10 were found.
-3. **Capture structure while the fetch is warm.** For each option you present,
-   note 2-3 concrete facts about layout/composition/values from the page you
-   just opened. Keep them for step 6 — you will write the picked one's facts
-   into `PICKS.md`. Do this now, not later: a URL alone cannot be fit-checked,
-   and re-deriving structure after the tab is closed means recalling it.
-4. Present a compact list — name, URL, one line on how it differs. No
-   screenshots, no scoring, no ranking.
-5. **STOP. Wait.** Do not proceed, do not suggest a default, do not fill
-   silence with a recommendation.
-6. Record the pick in `PICKS.md` with `Binding: provisional` — contract below.
-7. **Fit-check it** (next section) and write the `Fit-check:` line.
+   presenting — don't let a short list read as if you filtered it down.
+3. **STOP. Wait.** Do not proceed, do not suggest a default, do not fill
+   silence with a recommendation. The user reports back a pick — a name/URL
+   from the list, or a link they found themselves (always accepted).
+4. **Once picked**, fetch that specific page yourself, this session, to
+   capture `Values:` (hex/oklch/font names, copied verbatim) and `Structure:`
+   (2-3 facts about layout/composition) for the record. This is the one fetch
+   this skill does per phase in the default path, and it happens *after* the
+   pick, not before — a URL alone can't be fit-checked.
+5. Record the pick in `PICKS.md` with `Binding: provisional` — contract below.
+6. **Fit-check it** (next section) and write the `Fit-check:` line.
+
+**Fallback path — only when the default path actually breaks:**
+
+- A registry source is down or bot-blocked (matches its `dropped:` list, or a
+  probe this session confirms it's newly broken) — say so, then fetch **2-4**
+  alternate sources yourself this session and present a **3-5 option**
+  shortlist extracted from what you opened. Label it plainly as narrowed by
+  Claude because the normal source was inaccessible — this is the exception,
+  not the template for how Phase N usually runs.
+- After a pick, your step-4 fetch of the picked page also fails — say so and
+  ask the user to paste back the concrete values themselves rather than
+  guessing at them.
 
 **One phase per stop-and-wait, by default.** Don't bundle two or three
 phases' options into a single message just because it's faster — batching
@@ -172,6 +191,7 @@ Values: <hex/oklch etc., copied from the fetched source, never retyped from memo
 Structure: <2-3 facts about layout/composition, captured from the same fetch>
 Binding: provisional | binding
 Fit-check: NOT RUN | NO CONSTRAINTS SOURCE | <date> vs <path> — clean | <date> vs <path> — CONFLICT: <detail>
+Mobile: NOT RUN | <date> — pass | <date> — FAIL(<n> blockers, <n> majors) — see MOBILE.md
 ```
 
 Rules:
@@ -205,19 +225,22 @@ fresh fetch — labeled as such, never pre-selected, never the default.
 
 ## Division of labour
 
-**User does, manually — don't automate:** opening links and looking, judging
-fit, pasting back a choice (name or URL is enough), pasting a link they found
-themselves (always accepted, overrides the list), confirming a promotion,
-stating an override reason.
+**User does, manually — don't automate:** opening the registry's links and
+browsing the full source set, judging fit, pasting back a choice (name or URL
+is enough), pasting a link they found themselves (always accepted, overrides
+the list), confirming a promotion, stating an override reason.
 
-**Claude does:** the fetches, the compact option list, capturing structure,
-recording picks, running the fit-check, later retrieval of real component
-source via `design-source`.
+**Claude does:** presenting the registry's source list as-is, the one
+after-the-pick fetch to capture values/structure, recording picks, running
+the fit-check, later retrieval of real component source via `design-source`.
+Pre-fetching and narrowing the list is fallback-only work, done when a source
+is actually broken — not the default.
 
 **Claude must never:** render/screenshot/"evaluate" references, recommend a
-favorite unprompted, proceed on silence, treat a thin registry section as
-license to invent the missing options, write `binding` or `Override:` without
-the user, or report a fit-check clean on the strength of a string search.
+favorite unprompted, proceed on silence, pre-filter or rank the registry list
+when nothing is broken, treat a thin registry section as license to invent
+the missing options, write `binding` or `Override:` without the user, or
+report a fit-check clean on the strength of a string search.
 
 ## Handoff
 
@@ -232,11 +255,23 @@ constraints rather than the pick, update the constraints document too — a
 `PRD.md` that lost an argument and wasn't edited is a `PRD.md` that will lose
 the same argument again.
 
+Every design-heavy phase carries a `Mobile:` line in `PICKS.md`, written by
+the `mobile-check` skill after the section is built:
+
+```
+Mobile: NOT RUN | <date> — pass | <date> — FAIL(<n> blockers, <n> majors) — see MOBILE.md
+```
+
+`NOT RUN` is the default and is never overwritten by anything except a real
+probe run. A phase is not shippable while its `Mobile:` line reads `NOT RUN`
+or `FAIL(...)` with any blocker.
+
 ## Rationalizations to reject
 
 | Excuse | Reality |
 |---|---|
-| "I know a good palette site, I'll just list it" | Not fetched this session = not allowed in the list. Fetch it or drop it. |
+| "I know a good palette site, I'll just list it" | Not in the registry and not fetched this session = not allowed in the list. |
+| "I'll open a few of these first and only show the good ones" | That's pre-picking on the user's behalf. Default path hands over the full registry list untouched; narrowing is fallback-only, for a source that's actually broken. |
 | "The user's waiting, I'll suggest the best one" | Proceeding on silence or nudging a favorite is the failure this skill exists to prevent. Stop and wait. |
 | "This section only has 1 registry source, I'll add a couple I remember" | A thin section stays thin and gets said out loud. Padding with memory reproduces the original bug. |
 | "Palette's basically the same as the last project, I'll reuse it" | Identity-defining picks are never defaulted from a shared library. Fetch fresh; repeating is only valid as an outcome of that fetch. |
@@ -246,10 +281,12 @@ the same argument again.
 | "There's no PRD here, so there's nothing to check against — moving on" | Record `NO CONSTRAINTS SOURCE` and say it. A missing check that looks like a passed check is how this failed the first time. |
 | "The user clearly wants this, I'll write the override reason for them" | `Override:` is user input only. An inferred reason is fiction in a record other skills obey. |
 | "It's just for testing, I'll tidy the record later" | "For testing" is not a state the file can represent — that's why everything is `provisional`. Record it properly now; it costs one line. |
+| "The section looks fine in the browser at desktop width, mobile's probably fine" | `Mobile:` is written from a measured probe or it stays `NOT RUN`. An impression is not a measurement. |
 
 ## Red flags — stop and restart the phase
 
-- About to write a URL into an option list that wasn't opened this session.
+- About to write a URL into an option list that's neither in the registry nor opened this session.
+- About to pre-filter or shortlist the registry's list when no source is actually broken.
 - About to proceed to the next phase without an explicit `PICKED:` from the user.
 - About to write "recommended" or similar next to one option.
 - About to treat a `shared-picks.yaml` entry as satisfying a palette/hero/typography phase.

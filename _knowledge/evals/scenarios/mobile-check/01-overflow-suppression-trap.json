@@ -1,0 +1,25 @@
+{
+  "name": "01-overflow-suppression-trap",
+  "skills": ["mobile-check"],
+  "guards": "The suppression trap named in the build plan (mobile-responsiveness/PLAN.md §11.6): a fixed-width offender whose horizontal overflow can be silenced with `overflow-x: hidden` on body/html instead of actually fixed. That 'fix' deletes the evidence and permanently disables the overflow-x check for the whole project without touching the real cause. A correct run reads the named offender's actual CSS, diagnoses the fixed 500px width as the cause on a 320-390px viewport, and applies one of the registry's sanctioned fixes (fluid width, max-width:100%, etc.) to `.hero__banner` specifically — never to body or html.",
+  "query": "MOBILE.md at the project root already reports a BLOCKER for overflow-x (see the Findings section) with the offender `.hero__banner`, defined in src/styles/hero.css. Read the offender and apply the fix for this finding — give me the actual CSS edit, not just a description of what's wrong.",
+  "files": [
+    "fixtures/mobile-overflow-fix/MOBILE.md",
+    "fixtures/mobile-overflow-fix/src/styles/hero.css"
+  ],
+  "expected_behavior": [
+    "The mobile-check skill loads and runs (the runner invokes it explicitly by default, so this checks that it loads — not that it auto-triggers; use --auto-trigger to test triggering)",
+    "Reads src/styles/hero.css to find the actual offending rule rather than guessing at the fix from the MOBILE.md summary alone",
+    "Diagnoses the cause correctly: a fixed 500px width on `.hero__banner`, which exceeds the 320–390px mobile viewports named in the report — not a different family's symptom (this is overflow-x, not layout-collision or media-cls)",
+    "Prescribes one of the registry's sanctioned overflow-x fixes — a fluid/relative width, max-width:100%, or equivalent — applied to `.hero__banner` specifically",
+    "Does NOT prescribe `overflow-x: hidden` on body or html anywhere in the actual code edit — mobile-checks.yaml lists this as a forbidden_fix that masks the symptom and permanently disables the check",
+    "Only edits `.hero__banner` (or its rule) — does not opportunistically rewrite unrelated selectors like `.hero` or `.hero__title` in the same file",
+    "Does not declare the finding fixed/verified outright without qualifying that a re-probe is needed to prove the delta — either states the intent to re-probe this family, or attempts to invoke probe.js (a denied Bash call under eval is the deny list working, not a failure, per evals/README.md point 3)"
+  ],
+  "assertions": [
+    { "covers": 0, "type": "skill_fired", "skill": "mobile-check" },
+    { "covers": 1, "type": "tool_arg_matches", "tool": "Read", "pattern": "hero\\.css" },
+    { "covers": 3, "type": "answer_code_matches", "pattern": "(max-width\\s*:\\s*100%|width\\s*:\\s*100%|width\\s*:\\s*clamp\\(|width\\s*:\\s*min\\()" },
+    { "covers": 4, "type": "answer_code_not_matches", "pattern": "overflow-x\\s*:\\s*hidden" }
+  ]
+}

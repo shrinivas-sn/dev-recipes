@@ -46,26 +46,26 @@ better?"*
 This is `RESEARCH.md:56` problem #6, unchanged. Building evals for 7 skills is Layer 4 work,
 not Layer 2. Recorded here so it stays measured instead of forgotten.
 
-## Scorecard — custom skills, audited 2026-08-16
+## Scorecard — custom skills, audited 2026-08-16, `mobile-check` added 2026-08-21
 
-`~/.claude/skills/` holds **17** skills: 7 custom-authored (scored below) plus 10 from the
+`~/.claude/skills/` holds **18** skills: 8 custom-authored (scored below) plus 10 from the
 emilkowalski pack, upstream's to maintain — 9 of those are symlinks into `~/.agents/skills/`;
 `impeccable` is not (see below).
 
-Scored: the 7 custom-authored, against the mechanically checkable checklist items.
+Scored: the 8 custom-authored, against the mechanically checkable checklist items.
 
 | Check | Result |
 |---|---|
-| SKILL.md under 500 lines | **7/7** — range 8 (`animation-ref`) to 401 (`api-idea-scout`) |
-| Description states what *and* when | **7/7** — every one carries a "Use when…" clause |
-| File references one level deep | **7/7** — all are `references/*.md` |
-| Required tooling verified available | **1/1** — `animation-ref` is the only skill invoking a script; `add-animation-ref.js` exists |
-| Progressive disclosure where needed | **3/7** have a `references/` dir; `api-idea-scout` carries 401 lines with none |
-| No Windows-style paths | **1/7** — see delta above |
-| At least three evaluations | **0/7** — see delta above |
-| Under version control | **7/7** as of 2026-08-16 — mirrored into [`../_claude-config/`](../_claude-config/) and pushed; was **0/7** at audit time |
+| SKILL.md under 500 lines | **8/8** — range 8 (`animation-ref`) to 401 (`api-idea-scout`); `mobile-check` is 222 |
+| Description states what *and* when | **8/8** — every one carries a "Use when…"/"Use as…" clause |
+| File references one level deep | **7/7** of the pre-existing set are `references/*.md`; `mobile-check` has no `references/` (see progressive-disclosure row) |
+| Required tooling verified available | **2/2** — `animation-ref`'s `add-animation-ref.js`; `mobile-check`'s `probe.js`, proven against a real project (`E:\bs-bhavi-site\prototype`) before the skill was written |
+| Progressive disclosure where needed | **3/8** have a `references/` dir; `api-idea-scout` (401 lines) and `mobile-check` (222 lines, but the actual detection contract lives in `mobile-checks.yaml` + `templates/`, not inline) carry weight without one |
+| No Windows-style paths | **1/8** — see delta above; `mobile-check` has 4 (all absolute `E:\...`/`C:\...` references to the registry/skill/probe, same accepted pattern) |
+| At least three evaluations | **0/8** — see delta above; `mobile-check` gets 1 scenario at launch (§11.6 of its build plan), still short of 3 |
+| Under version control | **8/8** as of 2026-08-21 — mirrored into [`../_claude-config/`](../_claude-config/) and pushed |
 
-Two real gaps in the custom 7, both recorded as deltas above. Nothing there is a defect
+Two real gaps in the custom 8, both recorded as deltas above. Nothing there is a defect
 requiring a fix today.
 
 The version-control row is not on Anthropic's checklist — it was added after the audit,

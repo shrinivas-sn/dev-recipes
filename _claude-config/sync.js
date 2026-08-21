@@ -26,7 +26,7 @@ const REPO = __dirname;
  * `tracked: '*'` mirrors everything in the directory. An explicit list mirrors only those
  * entries, and is used where the live directory also holds things we deliberately skip.
  *
- * ~/.claude/skills holds both hand-written skills and installed ones. Only the 9 below are
+ * ~/.claude/skills holds both hand-written skills and installed ones. Only the 10 below are
  * hand-written. The rest are symlinks to ~/.agents/skills (the `npx skills@latest` pack) and
  * `impeccable`, a vendor install with its own installer — all reinstallable, so mirroring them
  * would duplicate recoverable content and bury the ones that actually matter.
@@ -35,6 +35,8 @@ const REPO = __dirname;
  * refuse-on-missing guard below could not catch that: it only checks names already in the
  * list, so a skill never registered is invisible to it. When you hand-write a new skill, add
  * it here in the same session — see _knowledge/SELF-MONITOR.md for the full entry.
+ *
+ * `mobile-check` added 2026-08-21, same session it was written.
  *
  * commands/ and agents/ hold no symlinks and nothing vendor-installed, so they mirror
  * wholesale. That has a sharp edge: with no name list there is nothing to refuse on, so a
@@ -50,6 +52,7 @@ const GROUPS = [
       'context-brief',
       'design-pick',
       'design-source',
+      'mobile-check',
       'no-ai-slop',
       'no-ai-slop-writing',
       'prd-intake',

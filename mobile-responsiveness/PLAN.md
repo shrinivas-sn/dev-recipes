@@ -1,6 +1,14 @@
 # PLAN — `mobile-check` skill + `mobile-checks.yaml` registry + probe recipe
 
-**Status:** approved design, not started.
+**Status:** DONE — executed 2026-08-21 by Sonnet 5. All 11 acceptance criteria (§11)
+demonstrated: probe runs clean with all 12 families represented; `MOBILE.md` produced
+against `E:\bs-bhavi-site\prototype` with every finding citing a measured number and
+every exclusion stated; a real blocker (fixed-width product card + non-responsive grid)
+found, fixed, and re-probed with a before/after delta in the fix ledger; `PICKS.md` gained
+`Mobile:` lines, none reading `pass` without a probe behind it; `node _claude-config/sync.js
+--check` passes; the suppression-trap eval scenario exists and passed 6/6 on a real run;
+the skill ran clean on a second, unrelated project (`E:\portfolio-site-new`) with a
+genuinely different derived-checks/results profile, proving it isn't bs-bhavi-shaped.
 **Written:** 2026-08-21 by Opus 5 (brainstorming, architectural path).
 **Executor:** Sonnet 5. Read this file end to end before touching anything.
 **Approved by user:** 4 decisions, recorded in "Decisions already made" below. Do not re-open them.

@@ -1,0 +1,249 @@
+# _knowledge/mobile-checks.yaml — mobile responsiveness check registry (Layer 1d)
+#
+# sources.yaml        -> "what is this library's API?"
+# design-sources.yaml -> "what does real component CODE look like?"
+# design-picks.yaml   -> "where does the USER go to pick a real design?"
+# THIS FILE            -> "what does 'mobile responsive' concretely mean, and how
+#                          is each part of it measured rather than eyeballed?"
+#
+# Hard rules this file exists to enforce:
+#   1. One failure mode has exactly one owning check. No duplicate detection.
+#   2. Every check carries a machine-evaluable pass condition. A check whose
+#      pass condition is a judgement call does not belong here.
+#   3. This file is GENERIC — no project, no client, no framework assumptions
+#      beyond what `applies_when` can test.
+#
+# Consumed by: ~/.claude/skills/mobile-check/SKILL.md (Phase 1 "Derive") and
+# templates/probe.js (Phase 2 "Probe"). Do not fork this file per project —
+# projects narrow the derived list via `applies_when`, they never edit this file.
+
+version: 1
+updated: 2026-08-21
+
+conventions:
+  severity:
+    blocker: "Site is unusable or inaccessible on a phone. Fix before anything else."
+    major:   "Real degradation a user will hit. Fix before ship."
+    minor:   "Worth fixing, does not block ship."
+    warn:    "Below the preferred bar but above the failing floor. Reported, never failed."
+  status:
+    pass: "Measured, within the pass condition."
+    fail: "Measured, outside the pass condition."
+    warn: "Measured, between the floor and the target."
+    n/a:  "Check did not apply to this project. Reason is always stated."
+    unstable: "Two measurements disagreed. Reported as unknown, never as pass."
+
+viewports:
+  - { id: xs,   w: 320, h: 568,  dpr: 2, touch: true }
+  - { id: sm,   w: 390, h: 844,  dpr: 3, touch: true }
+  - { id: md,   w: 768, h: 1024, dpr: 2, touch: true }
+  - { id: land, w: 844, h: 390,  dpr: 3, touch: true, families: [overflow-x, layout-collision, fixed-bar-budget] }
+  # Dynamic addition (per-project, done at runtime by Phase 0/1 — not written here):
+  # for every declared project breakpoint below 1024 not already covered above,
+  # add one extra viewport at breakpoint-1px. Cap total viewports at 6; if more,
+  # keep the 4 canonical + 2 lowest custom, and report which were dropped.
+
+checks:
+  - id: overflow-x
+    name: Horizontal overflow
+    owns: "Page or element extends past the viewport's right edge; horizontal scrollbar appears."
+    not_owns:
+      - "oversized/distorted image aspect ratio (layout-collision, family 6)"
+      - "body scroll behind an open drawer (nav-drawer, family 11)"
+    severity: blocker
+    applies_when: always
+    viewports: [xs, sm, md, land]
+    measure: "documentElement.scrollWidth - clientWidth (delta); plus per-element getBoundingClientRect() with right > vw+1 or left < -1, excluding invisible elements and descendants of a deliberate overflow-x scroller"
+    pass: "delta <= 0 and offenders.length === 0"
+    report: "delta in px, up to 10 offender selectors with their right value"
+    fixes:
+      - "max-width:100% on media"
+      - "min-width:0 on a non-shrinking flex/grid child"
+      - "overflow-wrap:anywhere on an unbreakable token/URL"
+      - "replace a fixed px width with a fluid one"
+      - "100vw -> 100% (100vw includes the scrollbar)"
+      - "clamp or remove a negative margin"
+      - "clip absolutely-positioned decoration with an overflow-hidden parent"
+    forbidden_fixes:
+      - "overflow-x:hidden on body or html — masks the symptom and permanently disables this check"
+
+  - id: viewport-meta
+    name: Viewport meta tag
+    owns: "Pinch-zoom disabled, or layout not scaled to device width."
+    not_owns:
+      - "safe-area padding correctness (dvh-safe-area, family 8, though it reads this check's viewport-fit=cover result)"
+    severity: blocker
+    applies_when: always
+    viewports: [xs]
+    measure: "document.querySelector('meta[name=viewport]')?.content"
+    pass: "contains width=device-width and initial-scale=1; does NOT contain user-scalable=no; maximum-scale absent or >= 5; minimum-scale absent or <= 1"
+    report: "the raw content string, and which condition(s) failed"
+    also_records: "whether viewport-fit=cover is present, for family 8 to reuse (never re-parsed)"
+    fixes:
+      - '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+    forbidden_fixes:
+      - "maximum-scale=1 or user-scalable=no to solve a different family's problem (e.g. form-input-zoom) — this is an accessibility violation, not a preference"
+
+  - id: tap-targets
+    name: Tap target size and spacing
+    owns: "Interactive element too small, or too close to its neighbour, to hit with a thumb."
+    not_owns:
+      - "a menu button too small to tap belongs here, not nav-drawer (family 11)"
+    severity: major
+    applies_when: "page has any interactive element (effectively always)"
+    viewports: [xs, sm, md]
+    measure: "getBoundingClientRect() for a[href], button, input:not([type=hidden]), select, textarea, [role=button|link|tab|menuitem], [tabindex]:not([tabindex='-1']) that are visible and in-viewport; plus centre-to-edge distance to the nearest other target"
+    pass_floor: "min(w,h) >= 24 OR nearest-neighbour gap >= 24 — WCAG 2.2 SC 2.5.8 AA. Below this is a real failure."
+    pass_target: "w >= 44 && h >= 44 — Apple HIG. Between 24 and 44 is warn, not fail."
+    exclusion: "an inline link inside a sentence of body text (display:inline, parent is a text block) — listed as excluded in the report, never silently dropped"
+    fixes:
+      - "padding to reach the box"
+      - "min-h-11 min-w-11 (Tailwind, 44px)"
+      - "increase the gap between adjacent targets"
+      - "enlarge the hit area with an ::after overlay when the visual must stay small"
+
+  - id: text-legibility
+    name: Body text size and line-height
+    owns: "Body copy rendered below the readable floor, or crushed line-height."
+    not_owns:
+      - "font size of an <input> (form-input-zoom, family 5)"
+    severity: major
+    applies_when: always
+    viewports: [xs, sm]
+    measure: "for every text-bearing leaf node with >= 40 characters: computed font-size, line-height, rendered line length in ch"
+    pass: "font-size >= 14px (fail below); >= 16px preferred (warn at 14-15.99); line-height/font-size >= 1.4 for body copy; line length reported only (45-75ch ideal), never failed"
+    exclusion: "form fields (family 5); legal/footnote text with an explicit <small> or a text-xs class on a node under 40 chars"
+    fixes:
+      - "raise the base size at the mobile breakpoint"
+      - "stop using the text-xs/text-sm scale for paragraphs"
+      - "set line-height explicitly on the container"
+
+  - id: form-input-zoom
+    name: Form field zoom, type, and autocomplete
+    owns: "Focusing a field triggers iOS auto-zoom; wrong keyboard type; missing autocomplete."
+    not_owns:
+      - "font size of a paragraph (text-legibility, family 4)"
+    severity: major
+    applies_when: "project contains a <form> or any text input"
+    viewports: [xs, sm]
+    measure: "computed font-size; presence of type/inputmode/autocomplete attributes; <label> association, per input:not([type=submit|button|checkbox|radio|hidden]), select, textarea"
+    pass: "font-size >= 16px at every mobile viewport; email field has type=email, phone has type=tel, numeric has inputmode=numeric; every field has a non-empty autocomplete; every field has an associated label or aria-label"
+    fixes:
+      - "font-size: 16px on fields at mobile widths"
+    forbidden_fixes:
+      - "maximum-scale=1 to stop the zoom instead of fixing font-size — fails family 2 (viewport-meta)"
+
+  - id: layout-collision
+    name: Occlusion, clipping, and image distortion
+    owns: "Elements overlap, text is clipped by a fixed-height box, images distorted."
+    not_owns:
+      - "an image wider than the screen (overflow-x, family 1)"
+      - "an image that shifts the page on load (media-cls, family 9)"
+    severity: "blocker (occlusion, clipping) / major (image distortion)"
+    applies_when: always
+    viewports: [xs, sm, md, land]
+    measure: "A. elementFromPoint at each text element's centre must resolve to it or a descendant, excluding deliberate overlays (role=dialog, aria-modal=true, the open nav panel — coordinate with family 11). B. scrollHeight > clientHeight+1 with computed overflow-y:hidden on a text-bearing element. C. for <img> with naturalWidth>0: naturalWidth/naturalHeight vs clientWidth/clientHeight, deviation >5% with object-fit:fill or unset"
+    pass: "zero offenders in A and B; zero in C"
+    boundary_rule: "a sticky header covering the first heading is family 7 if shrinking the bar fixes it (sizing), family 6 if only re-ordering/padding fixes it (stacking)"
+    fixes:
+      - "A: fix stacking/order or add padding"
+      - "B: replace fixed height with min-height or let it flow"
+      - "C: object-fit:cover + explicit aspect-ratio"
+
+  - id: fixed-bar-budget
+    name: Fixed/sticky chrome viewport budget
+    owns: "Pinned chrome (header/footer/CTA bar) consumes too much of the screen."
+    not_owns:
+      - "a sticky header that covers content due to stacking order (layout-collision, family 6)"
+    severity: major
+    applies_when: always
+    viewports: [xs, sm, md, land]
+    measure: "sum of heights of every visible element with computed position:fixed or sticky pinned to top (rect.top<=0) or bottom (rect.bottom>=vh) edge at load"
+    pass: "sum <= 0.25 * vh; no single fixed element covers > 60% of viewport unless it's an open overlay (aria-modal, role=dialog)"
+    note: "must also run at the landscape viewport — this check fails in landscape far more often than portrait"
+    fixes:
+      - "shrink padding at mobile widths"
+      - "collapse-on-scroll header"
+      - "make the footer bar non-fixed below a breakpoint"
+      - "merge two bars into one"
+
+  - id: dvh-safe-area
+    name: Dynamic viewport units and safe-area insets
+    owns: "100vh fights mobile browser UI; content hides under a notch or home indicator."
+    not_owns: []
+    severity: major
+    applies_when: "project uses 100vh/h-screen, or has a fixed/sticky edge bar"
+    viewports: [xs, sm]
+    measure: "static: grep project CSS/JSX for 100vh, h-screen, min-h-screen, max-h-screen. runtime: window.innerHeight vs window.visualViewport.height; whether fixed top/bottom bar padding includes env(safe-area-inset-*)"
+    pass: "full-height sections use dvh/svh/lvh (or a JS --vh fallback), not bare vh; fixed top bar has padding-top:env(safe-area-inset-top); fixed bottom bar has padding-bottom:env(safe-area-inset-bottom); if env(safe-area-inset-*) is used anywhere, viewport-fit=cover is present (reused from family 2's result, never re-parsed)"
+    fixes:
+      - "min-h-[100svh]"
+      - "height: 100dvh"
+      - "add the safe-area padding"
+      - "add viewport-fit=cover"
+
+  - id: media-cls
+    name: Media layout shift and weight
+    owns: "Images shift the layout on load, lack intrinsic size, or are absurdly heavy for a phone."
+    not_owns:
+      - "wrong aspect ratio rendering (layout-collision, family 6)"
+      - "image wider than the screen (overflow-x, family 1)"
+    severity: "major (shift) / minor (weight)"
+    applies_when: "project renders <img> or <video>"
+    viewports: [xs, sm]
+    measure: "PerformanceObserver on layout-shift, summed over load + 2s idle (exclude hadRecentInput). Per <img>/<video>: width+height attrs or CSS aspect-ratio present; loading=lazy when below the fold; srcset+sizes present; encodedBodySize from performance.getEntriesByType('resource')"
+    pass: "CLS < 0.1; every image has intrinsic dimensions; no single image transfers > 300 KB at the 390px viewport; total image bytes < 1.5 MB"
+    fixes:
+      - "add width/height or aspect-ratio"
+      - "add srcset/sizes so the phone doesn't download the desktop asset"
+      - "lazy-load below the fold"
+      - "re-encode to WebP/AVIF"
+
+  - id: touch-affordance
+    name: Touch reachability of hover-gated content
+    owns: "Content reachable only on :hover; touch gestures broken or hijacked."
+    not_owns: []
+    severity: major
+    applies_when: "project has any :hover/hover: rule that changes visibility"
+    viewports: [sm]
+    measure: "static: scan for opacity-0+hover:opacity-100, hidden+group-hover:block, or :hover rules changing display/visibility/opacity from hidden to visible, not wrapped in @media (hover:hover). runtime (hasTouch:true): confirm such content is unreachable if still hidden at a touch viewport. also: touch-action on custom drag/swipe surfaces; -webkit-tap-highlight-color:transparent without a replacement :active state"
+    pass: "no unreachable hover-gated content; no unguarded hover reveal"
+    fixes:
+      - "wrap hover reveals in @media (hover:hover) and (pointer:fine); show the content unconditionally otherwise"
+
+  - id: nav-drawer
+    name: Mobile navigation open/close/focus/scroll-lock
+    owns: "Mobile menu can't open, can't close, doesn't trap focus, or lets the page scroll behind it."
+    not_owns:
+      - "a menu button too small to tap (tap-targets, family 3)"
+      - "body scroll behind an open drawer looks like overflow but is owned here, never family 1"
+    severity: "blocker (can't navigate) / major (a11y details)"
+    applies_when: "page has a nav landmark"
+    viewports: [xs, sm]
+    interactive: true
+    run_order_note: "runs LAST within a viewport — the only family that interacts, and opening a drawer mutates the page"
+    measure: "sequence, asserting after each step: 1) click toggle -> panel visible, aria-expanded=true; 2) document.activeElement inside panel (or moves there on Tab); 3) body/html scroll locked (overflow:hidden or scrollY unchanged after a programmatic scroll attempt); 4) Tab cycles within panel, does not escape; 5) Escape closes panel, aria-expanded=false, focus returns to toggle; 6) re-open, click a nav link -> panel closes or navigation occurs"
+    pass: "steps 1 and 6 are blockers; steps 2-5 are majors"
+    n_a_condition: "no toggle found AND full nav links already visible and pass families 1/3 -> n/a, not a failure. No toggle found AND nav links not reachable -> blocker."
+    toggle_detection: "a <button> inside header/nav visible at mobile viewport, hidden at >=1024, preferring aria-controls or aria-expanded"
+    fixes:
+      - "standard disclosure pattern"
+      - "body scroll lock on open"
+      - "focus trap"
+      - "Escape handler"
+      - "close-on-navigate"
+
+  - id: reduced-motion
+    name: prefers-reduced-motion compliance
+    owns: "Motion keeps running when the OS asked for it to stop."
+    not_owns:
+      - "animation quality/taste — out of scope entirely, belongs to review-animations/improve-animations"
+    severity: major
+    applies_when: "project has CSS animations/transitions or a motion library"
+    viewports: [sm]
+    measure: "page.emulateMediaFeatures([{name:'prefers-reduced-motion', value:'reduce'}]), reload, settle. Sample every element that had a non-none animation-name or transition-duration>0.1s in the normal pass; assert it is now inert (animation-name:none or animation-play-state:paused, transition-duration<=0.01s). Grep for a motion library (GSAP/Framer Motion/Motion One/Lenis) and confirm a matchMedia('(prefers-reduced-motion: reduce)') guard exists in the codebase."
+    pass: "no infinite animation still running under reduce; no scroll-jacking/smooth-scroll hijack active under reduce"
+    scope_guard: "judges whether the code path fires, never whether the animation is good"
+    fixes:
+      - "@media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } } plus a JS guard for library-driven motion"
+    cross_reference: "E:\\dev-recipes\\website-animation-patterns\\ for existing reduced-motion rules — reference them, do not copy them into this file"
